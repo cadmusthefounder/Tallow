@@ -27,10 +27,9 @@ class CATBOOST_ENSEMBLE:
         self._sampler = RandomSampler(self._max_data)
         self._fixed_hyperparameters = {
             'loss_function': 'Logloss',
-            # 'eval_metric': 'AUC:hints=skip_train~false',
-            # 'use_best_model': True,
-            # 'od_type': 'IncToDec',
-            # 'od_pval': pow(10, -5),
+            'eval_metric': 'AUC:hints=skip_train~false',
+            'use_best_model': True,
+            'early_stopping_rounds': 5,
             'n_estimators': 700,
             'depth': 8,
             'random_strength': 1,
@@ -41,10 +40,9 @@ class CATBOOST_ENSEMBLE:
         }
         self._search_space = {
             'loss_function': 'Logloss',
-            # 'eval_metric': 'AUC:hints=skip_train~false',
-            # 'use_best_model': True,
-            # 'od_type': 'IncToDec',
-            # 'od_pval': hp.loguniform('od_pval', np.log(pow(10, -10)), np.log(pow(10, -2))),
+            'eval_metric': 'AUC:hints=skip_train~false',
+            'use_best_model': True,
+            'early_stopping_rounds': 5,
             'n_estimators': scope.int(hp.quniform('n_estimators', 400, 1000, 100)),
             'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
             'random_strength': scope.int(hp.quniform('random_strength', 1, 5, 1)),
@@ -106,8 +104,8 @@ class CATBOOST_ENSEMBLE:
         validation_pool = Pool(validation_data, validation_labels, cat_features=category_indices)
 
         self._classifier = self._classifier_class(**self._fixed_hyperparameters)
-        # self._classifier.fit(train_pool, eval_set=validation_pool)
-        self._classifier.fit(train_pool)
+        self._classifier.fit(train_pool, eval_set=validation_pool)
+        # self._classifier.fit(train_pool)
         
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'End'))
     
