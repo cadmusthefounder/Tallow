@@ -40,7 +40,7 @@ class CATBOOST_ENSEMBLE:
             'has_time': True,
             'boosting_type': 'Plain',
             'max_ctr_complexity': 2,
-            'verbose': False
+            'verbose': True
         }
         self._search_space = {
             'loss_function': 'Logloss',
@@ -122,6 +122,8 @@ class CATBOOST_ENSEMBLE:
             classifier = self._classifier_class(**self._best_hyperparameters)
             classifier.fit(train_pool, eval_set=validation_pool)   
             self._classifiers.append(classifier)
+
+
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'End'))
     
     def predict(self, F, datainfo, timeinfo):
