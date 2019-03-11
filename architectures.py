@@ -21,7 +21,7 @@ class CATBOOST_ENSEMBLE:
         self._classifier = None
         self._validation_size = 0.3
         self._fixed_hyperparameters = {
-            'loss_function': 'AUC:hints=skip_train~false',
+            'loss_function': 'Logloss',
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
             'od_type': 'Iter',
@@ -34,7 +34,7 @@ class CATBOOST_ENSEMBLE:
             'has_time': True
         }
         self._search_space = {
-            'loss_function': 'AUC:hints=skip_train~false',
+            'loss_function': 'Logloss',
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
             'od_type': 'Iter',
@@ -48,7 +48,7 @@ class CATBOOST_ENSEMBLE:
         }
 
     def fit(self, F, y, datainfo, timeinfo):
-        print('\n File: {} Class: {} Function: {} State: {}'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'Start'))
+        print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'Start'))
         info = extract(datainfo, timeinfo)
         print_time_info(info)
 
@@ -95,7 +95,7 @@ class CATBOOST_ENSEMBLE:
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'End'))
     
     def predict(self, F, y, datainfo, timeinfo):
-        print('\n File: {} Class: {} Function: {} State: {}'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'predict', 'Start'))
+        print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'predict', 'Start'))
         info = extract(datainfo, timeinfo)
         print_time_info(info)
 

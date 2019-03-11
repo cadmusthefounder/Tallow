@@ -39,7 +39,7 @@ def extract(datainfo, timeinfo):
     }
 
 def print_data_info(info):
-    print('\n File: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'print_data_info', 'Start'))
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'print_data_info', 'Start'))
     print('Dataset time budget: {0:f} seconds'.format(info['time_budget']))
     print('No. of time features: {0:d}'.format(info['no_of_time_features']))
     print('No. of numerical features: {0:d}'.format(info['no_of_numerical_features']))
@@ -48,13 +48,13 @@ def print_data_info(info):
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'print_data_info', 'End'))
 
 def print_time_info(info):
-    print('\n File: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'print_time_info', 'Start'))
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'print_time_info', 'Start'))
     print('Overall time spent: {0:5.2f} seconds'.format(info['overall_time_spent']))
     print('Dataset time spent: {0:5.2f} seconds'.format(info['dataset_time_spent'])) 
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'print_time_info', 'End'))
 
 def get_data(F, info):
-    print('\n File: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'get_data', 'Start'))
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'get_data', 'Start'))
     data = np.array([])
     if info['no_of_time_features'] > 0 or info['no_of_numerical_features'] > 0:
         data = np.nan_to_num(F['numerical'])
@@ -72,7 +72,7 @@ def get_data(F, info):
     return data
 
 def split_data_by_type(data, info):
-    print('\n File: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'split_data_by_type', 'Start'))
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'split_data_by_type', 'Start'))
     time_data = np.array([]) if info['no_of_time_features'] == 0 else data[:,:info['numerical_data_starting_index']]
     numerical_data = np.array([]) if info['no_of_numerical_features'] == 0 else \
                     data[:,info['numerical_data_starting_index']:info['categorical_data_starting_index']]
@@ -89,7 +89,7 @@ def split_data_by_type(data, info):
     return time_data, numerical_data, categorical_data, mvc_data
 
 def subtract_min_time(time_data):
-    print('\n File: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'subtract_min_time', 'Start'))
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'subtract_min_time', 'Start'))
     print('time_data.shape: {}'.format(time_data.shape))
     result = np.apply_along_axis(
         lambda x: x.astype(float) - np.min(x[np.flatnonzero(x)]) if len(np.flatnonzero(x)) != 0 else x, 
@@ -101,7 +101,7 @@ def subtract_min_time(time_data):
     return result
 
 def difference_between_time_columns(time_data):
-    print('\n File: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'difference_between_time_columns', 'Start'))
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'difference_between_time_columns', 'Start'))
     no_of_rows, no_of_cols = time_data.shape
     print('time_data.shape: {}'.format((no_of_rows, no_of_cols)))
     result = np.array([])
