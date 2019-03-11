@@ -8,6 +8,7 @@ from catboost import CatBoostClassifier, Pool
 from hyperopt import hp
 from hyperopt.pyll.base import scope
 from sklearn.model_selection import train_test_split
+from samplers import RandomOverSampler
 
 class CATBOOST_ENSEMBLE:
     NAME = 'CATBOOST_ENSEMBLE'
@@ -20,32 +21,34 @@ class CATBOOST_ENSEMBLE:
         self._classifier_class = CatBoostClassifier
         self._classifier = None
         self._validation_size = 0.3
+        self._random_state = 42
+        self._sampler = RandomOverSampler(self._random_state)
         self._fixed_hyperparameters = {
             'loss_function': 'Logloss',
-            'eval_metric': 'AUC:hints=skip_train~false',
-            'use_best_model': True,
-            'od_type': 'IncToDec',
-            'od_pval': pow(10, -5),
-            'n_estimators': 500,
+            # 'eval_metric': 'AUC:hints=skip_train~false',
+            # 'use_best_model': True,
+            # 'od_type': 'IncToDec',
+            # 'od_pval': pow(10, -5),
+            'n_estimators': 700,
             'depth': 8,
             'random_strength': 1,
+            'bagging_temperature': 1,
             'has_time': True,
             'boosting_type': 'Plain',
-            'bootstrap_type': 'Bernoulli',
             'max_ctr_complexity': 2
         }
         self._search_space = {
             'loss_function': 'Logloss',
-            'eval_metric': 'AUC:hints=skip_train~false',
-            'use_best_model': True,
-            'od_type': 'IncToDec',
-            'od_pval': hp.loguniform('od_pval', np.log(pow(10, -10)), np.log(pow(10, -2))),
-            'n_estimators': scope.int(hp.quniform('n_estimators', 400, 700, 50)),
+            # 'eval_metric': 'AUC:hints=skip_train~false',
+            # 'use_best_model': True,
+            # 'od_type': 'IncToDec',
+            # 'od_pval': hp.loguniform('od_pval', np.log(pow(10, -10)), np.log(pow(10, -2))),
+            'n_estimators': scope.int(hp.quniform('n_estimators', 400, 1000, 100)),
             'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
             'random_strength': scope.int(hp.quniform('random_strength', 1, 5, 1)),
+            'bagging_temperature': hp.loguniform('bagging_temperature', np.log(0.1), np.log(3)),
             'has_time': True,
             'boosting_type': 'Plain',
-            'bootstrap_type': 'Bernoulli',
             'max_ctr_complexity': 2
         }
 
@@ -84,9 +87,10 @@ class CATBOOST_ENSEMBLE:
             transformed_data,
             y,
             test_size=self._validation_size,
-            random_state=42,
+            random_state=self._random_state,
             shuffle=False
         )
+        train_data, train_labels = self._sampler.sample(train_data, train_labels)
         category_indices = None if cat_start_index is None else list(range(cat_start_index, transformed_data.shape[1]))
         train_pool = Pool(train_data, train_labels, cat_features=category_indices)
         validation_pool = Pool(validation_data, validation_labels, cat_features=category_indices)
