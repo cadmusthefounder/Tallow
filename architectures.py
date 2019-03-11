@@ -22,6 +22,7 @@ class CATBOOST_ENSEMBLE:
 
         self._classifier_class = CatBoostClassifier
         self._classifiers = []
+        self._max_classifiers = 5
         self._validation_size = 0.3
         self._random_state = 13
         self._max_data = 400000
@@ -48,7 +49,7 @@ class CATBOOST_ENSEMBLE:
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
             'early_stopping_rounds': 7,
-            'n_estimators': scope.int(hp.quniform('n_estimators', 400, 1000, 100)),
+            'n_estimators': scope.int(hp.quniform('n_estimators', 500, 1000, 100)),
             'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
             'random_strength': hp.loguniform('random_strength', np.log(0.5), np.log(5)),
             'bagging_temperature': hp.loguniform('bagging_temperature', np.log(0.1), np.log(3)),
@@ -124,6 +125,9 @@ class CATBOOST_ENSEMBLE:
             classifier = self._classifier_class(**self._best_hyperparameters)
             classifier.fit(train_pool, eval_set=validation_pool)   
             self._classifiers.append(classifier)
+
+            if len(self._classifiers) > self._max_classifiers:
+                self._classifiers.pop(0)
 
             if len(self._classifiers) > 1:
                 probabilities = np.zeros(len(validation_data))
