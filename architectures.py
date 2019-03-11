@@ -125,20 +125,21 @@ class CATBOOST_ENSEMBLE:
             classifier.fit(train_pool, eval_set=validation_pool)   
             self._classifiers.append(classifier)
 
-            probabilities = np.zeros(len(validation_data))
-            for i in range(len(self._classifiers)):
-                if i == 0:
-                    probabilities = self._classifiers[i].predict_proba(validation_pool)[:,1]
-                else:
-                    probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(validation_pool)[:,1]))
+            if len(self._classifiers) > 1:
+                probabilities = np.zeros(len(validation_data))
+                for i in range(len(self._classifiers)):
+                    if i == 0:
+                        probabilities = self._classifiers[i].predict_proba(validation_pool)[:,1]
+                    else:
+                        probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(validation_pool)[:,1]))
 
-            probabilities = np.transpose(probabilities).reshape(-1, 1)
-            print('\n')
-            print(137)
-            print(probabilities.shape)
-            print('\n')
-            self._lr = LogisticRegression()
-            self._lr.fit(probabilities, validation_labels)
+                probabilities = np.transpose(probabilities)
+                print('\n')
+                print(137)
+                print(probabilities.shape)
+                print('\n')
+                self._lr = LogisticRegression()
+                self._lr.fit(probabilities, validation_labels)
 
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'End'))
     
@@ -169,16 +170,19 @@ class CATBOOST_ENSEMBLE:
 
         category_indices = None if cat_start_index is None else list(range(cat_start_index, transformed_data.shape[1]))
         test_pool = Pool(transformed_data, cat_features=category_indices)
-        
-        probabilities = np.zeros(len(transformed_data))
-        for i in range(len(self._classifiers)):
-            if i == 0:
-                probabilities = self._classifiers[i].predict_proba(transformed_data)[:,1]
-            else:
-                probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(transformed_data)[:,1]))
 
-        probabilities = np.transpose(probabilities).reshape(-1, 1)
-        probabilities = self._lr.predict_proba(probabilities)
+        if len(self._classifiers) == 1:
+            probabilities = self._classifiers[0].predict_proba(transformed_data)[:,1]
+        else:
+            probabilities = np.zeros(len(transformed_data))
+            for i in range(len(self._classifiers)):
+                if i == 0:
+                    probabilities = self._classifiers[i].predict_proba(transformed_data)[:,1]
+                else:
+                    probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(transformed_data)[:,1]))
+
+            probabilities = np.transpose(probabilities)
+            probabilities = self._lr.predict_proba(probabilities)
         print('probabilities.shape: {}'.format(probabilities.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'predict', 'End'))
         return probabilities
