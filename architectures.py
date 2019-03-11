@@ -90,7 +90,7 @@ class CATBOOST_ENSEMBLE:
         validation_pool = Pool(validation_data, validation_labels, cat_features=category_indices)
 
         self._classifier = self._classifier_class(**self._fixed_hyperparameters)
-        self._classifier.fit(train_pool, eval_set=validation_pool, verbose=True)
+        self._classifier.fit(train_pool, eval_set=validation_pool)
         
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'End'))
     
