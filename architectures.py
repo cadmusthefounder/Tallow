@@ -33,29 +33,29 @@ class CATBOOST_ENSEMBLE:
             'loss_function': 'Logloss',
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
-            'early_stopping_rounds': 50,
+            'early_stopping_rounds': 10,
             'n_estimators': 700,
             'depth': 8,
             'random_strength': 1,
             'bagging_temperature': 1,
-            # 'has_time': True,
             'boosting_type': 'Plain',
             'max_ctr_complexity': 2,
-            'verbose': True
+            'verbose': True,
+            'random_state': self._random_state
         }
         self._search_space = {
             'loss_function': 'Logloss',
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
-            'early_stopping_rounds': 50,
+            'early_stopping_rounds': 10,
             'n_estimators': scope.int(hp.quniform('n_estimators', 400, 1000, 100)),
             'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
-            'random_strength': scope.int(hp.quniform('random_strength', 1, 5, 1)),
+            'random_strength': hp.loguniform('random_strength', np.log(0.5), np.log(5)),
             'bagging_temperature': hp.loguniform('bagging_temperature', np.log(0.1), np.log(3)),
-            # 'has_time': True,
             'boosting_type': 'Plain',
             'max_ctr_complexity': 2,
-            'verbose': False
+            'verbose': False,
+            'random_state': self._random_state
         }
         self._best_hyperparameters = None
         self._lr = None
