@@ -32,7 +32,7 @@ class CATBOOST_ENSEMBLE:
             'bagging_temperature': 1,
             'has_time': True,
             'boosting_type': 'Plain',
-            'bootstrap_type' 'Bernoulli',
+            'bootstrap_type': 'Bernoulli',
             'max_ctr_complexity': 2
         }
         self._search_space = {
@@ -47,7 +47,7 @@ class CATBOOST_ENSEMBLE:
             'bagging_temperature': hp.loguniform('bagging_temperature', np.log(0), np.log(3)),
             'has_time': True,
             'boosting_type': 'Plain',
-            'bootstrap_type' 'Bernoulli',
+            'bootstrap_type': 'Bernoulli',
             'max_ctr_complexity': 2
         }
 
