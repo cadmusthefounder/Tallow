@@ -8,6 +8,7 @@ from catboost import CatBoostClassifier, Pool
 from hyperopt import hp
 from hyperopt.pyll.base import scope
 from sklearn.model_selection import train_test_split
+from hyperparameters_tuner import HyperparametersTuner
 from samplers import RandomOverSampler, RandomSampler
 
 class CATBOOST_ENSEMBLE:
@@ -19,17 +20,19 @@ class CATBOOST_ENSEMBLE:
         print_time_info(info)
 
         self._classifier_class = CatBoostClassifier
-        self._classifier = None
+        self._classifiers = []
         self._validation_size = 0.3
         self._random_state = 42
         self._max_data = 400000
+        self._max_evaluations = 15
+        self._dataset_budget_threshold = 0.8
         self._over_sampler = RandomOverSampler(self._random_state)
         self._sampler = RandomSampler(self._max_data)
         self._fixed_hyperparameters = {
             'loss_function': 'Logloss',
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
-            'early_stopping_rounds': 5,
+            'od_pval': pow(10, -3),
             'n_estimators': 700,
             'depth': 8,
             'random_strength': 1,
@@ -42,7 +45,7 @@ class CATBOOST_ENSEMBLE:
             'loss_function': 'Logloss',
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
-            'early_stopping_rounds': 5,
+            'od_pval': pow(10, -3),
             'n_estimators': scope.int(hp.quniform('n_estimators', 400, 1000, 100)),
             'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
             'random_strength': scope.int(hp.quniform('random_strength', 1, 5, 1)),
@@ -51,6 +54,7 @@ class CATBOOST_ENSEMBLE:
             'boosting_type': 'Plain',
             'max_ctr_complexity': 2
         }
+        self._best_hyperparameters = None
 
     def fit(self, F, y, datainfo, timeinfo):
         print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'Start'))
@@ -91,22 +95,31 @@ class CATBOOST_ENSEMBLE:
             shuffle=False
         )
         print('train_data.shape: {}'.format(train_data.shape))
+        print('train_labels.shape: {}'.format(train_labels.shape))
         print('validation_data.shape: {}'.format(validation_data.shape))
+        print('validation_labels.shape: {}'.format(validation_labels.shape))
         
         train_data, train_labels = self._over_sampler.sample(train_data, train_labels)
         print('train_data.shape: {}'.format(train_data.shape))
+        print('train_labels.shape: {}'.format(train_labels.shape))
 
         train_data, train_labels = self._sampler.sample(train_data, train_labels)
         print('train_data.shape: {}'.format(train_data.shape))
+        print('train_labels.shape: {}'.format(train_labels.shape))
         
         category_indices = None if cat_start_index is None else list(range(cat_start_index, transformed_data.shape[1]))
         train_pool = Pool(train_data, train_labels, cat_features=category_indices)
         validation_pool = Pool(validation_data, validation_labels, cat_features=category_indices)
 
-        self._classifier = self._classifier_class(**self._fixed_hyperparameters)
-        self._classifier.fit(train_pool, eval_set=validation_pool)
-        # self._classifier.fit(train_pool)
-        
+        if self._best_hyperparameters is None:
+            tuner = HyperparametersTuner(self._classifier_class, self._fixed_hyperparameters, self._search_space, self._max_evaluations)
+            self._best_hyperparameters = tuner.get_best_hyperparameters(train_pool, validation_pool)
+            print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))
+
+        if has_sufficient_time(self._dataset_budget_threshold, info) or len(self._classifiers) == 0:
+            classifier = self._classifier_class(**self._best_hyperparameters)
+            classifier.fit(train_pool, eval_set=validation_pool)   
+            self._classifiers.append(classifier)
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'End'))
     
     def predict(self, F, datainfo, timeinfo):
@@ -136,7 +149,12 @@ class CATBOOST_ENSEMBLE:
 
         category_indices = None if cat_start_index is None else list(range(cat_start_index, transformed_data.shape[1]))
         test_pool = Pool(transformed_data, cat_features=category_indices)
-        probabilities = self._classifier.predict_proba(test_pool)[:,1]
+        
+        probabilities = np.zeros(len(transformed_data))
+        for classifier in self._classifiers:
+            probabilities += self._classifier.predict_proba(test_pool)[:,1]
+
+        probabilities = np.true_divide(probabilities, len(self._classifiers))
         print('probabilities.shape: {}'.format(probabilities.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'predict', 'End'))
         return probabilities
