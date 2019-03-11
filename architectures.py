@@ -94,7 +94,7 @@ class CATBOOST_ENSEMBLE:
         
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'End'))
     
-    def predict(self, F, y, datainfo, timeinfo):
+    def predict(self, F, datainfo, timeinfo):
         print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'predict', 'Start'))
         info = extract(datainfo, timeinfo)
         print_time_info(info)
