@@ -25,13 +25,15 @@ class CATBOOST_ENSEMBLE:
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
             'od_type': 'IncToDec',
-            'od_pval': pow(10, -7),
+            'od_pval': pow(10, -5),
             'n_estimators': 500,
             'depth': 8,
-            'l2_leaf_reg': 3,
             'random_strength': 1,
             'bagging_temperature': 1,
-            'has_time': True
+            'has_time': True,
+            'boosting_type': 'Plain',
+            'bootstrap_type' 'Bernoulli',
+            'max_ctr_complexity': 2
         }
         self._search_space = {
             'loss_function': 'Logloss',
@@ -41,10 +43,12 @@ class CATBOOST_ENSEMBLE:
             'od_pval': hp.loguniform('od_pval', np.log(pow(10, -10)), np.log(pow(10, -2))),
             'n_estimators': scope.int(hp.quniform('n_estimators', 400, 700, 50)),
             'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
-            'l2_leaf_reg': scope.int(hp.quniform('l2_leaf_reg', 1, 5, 1)),
             'random_strength': scope.int(hp.quniform('random_strength', 1, 5, 1)),
             'bagging_temperature': hp.loguniform('bagging_temperature', np.log(0), np.log(3)),
-            'has_time': True
+            'has_time': True,
+            'boosting_type': 'Plain',
+            'bootstrap_type' 'Bernoulli',
+            'max_ctr_complexity': 2
         }
 
     def fit(self, F, y, datainfo, timeinfo):
