@@ -132,7 +132,7 @@ class CATBOOST_ENSEMBLE:
                 else:
                     probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(validation_pool)[:,1]))
 
-            probabilities = np.transpose(probabilities)
+            probabilities = np.transpose(probabilities).reshape(-1, 1)
             print('\n')
             print(137)
             print(probabilities.shape)
@@ -177,6 +177,7 @@ class CATBOOST_ENSEMBLE:
             else:
                 probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(transformed_data)[:,1]))
 
+        probabilities = np.transpose(probabilities).reshape(-1, 1)
         probabilities = self._lr.predict_proba(probabilities)
         print('probabilities.shape: {}'.format(probabilities.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'predict', 'End'))
