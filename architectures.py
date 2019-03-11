@@ -38,7 +38,7 @@ class CATBOOST_ENSEMBLE:
             'depth': 8,
             'random_strength': 1,
             'bagging_temperature': 1,
-            'has_time': True,
+            # 'has_time': True,
             'boosting_type': 'Plain',
             'max_ctr_complexity': 2,
             'verbose': True
@@ -52,7 +52,7 @@ class CATBOOST_ENSEMBLE:
             'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
             'random_strength': scope.int(hp.quniform('random_strength', 1, 5, 1)),
             'bagging_temperature': hp.loguniform('bagging_temperature', np.log(0.1), np.log(3)),
-            'has_time': True,
+            # 'has_time': True,
             'boosting_type': 'Plain',
             'max_ctr_complexity': 2,
             'verbose': False
