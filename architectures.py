@@ -178,7 +178,7 @@ class CATBOOST_ENSEMBLE:
                     probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(transformed_data)[:,1]))
 
             probabilities = np.transpose(probabilities)
-            probabilities = self._lr.predict_proba(probabilities)
+            probabilities = self._lr.predict_proba(probabilities)[:,1]
         print('probabilities.shape: {}'.format(probabilities.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'predict', 'End'))
         return probabilities
