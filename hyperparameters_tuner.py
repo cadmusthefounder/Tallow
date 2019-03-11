@@ -21,11 +21,12 @@ class HyperparametersTuner:
         classifier.fit(self._train_pool, eval_set=self._validation_pool)
         predictions = classifier.predict(self._validation_pool)
 
+        labels = np.array(self._validation_pool.get_label())
         print('Fixed hyperparameters')
-        print('self._validation_pool.get_label().shape: {}'.format(self._validation_pool.get_label().shape))
+        print('labels.shape: {}'.format(labels.shape))
         print('predictions.shape: {}'.format(predictions.shape))
         
-        fixed_hyperparameters_score = roc_auc_score(self._validation_pool.get_label(), predictions)
+        fixed_hyperparameters_score = roc_auc_score(labels, predictions)
 
         # Find best trial hyperparameters
         trials = Trials()
@@ -58,9 +59,10 @@ class HyperparametersTuner:
         classifier.fit(self._train_pool, eval_set=self._validation_pool)
         predictions = classifier.predict(self._validation_pool)
 
-        print('self._validation_pool.get_label().shape: {}'.format(self._validation_pool.get_label().shape))
+        labels = np.array(self._validation_pool.get_label())
+        print('labels.shape: {}'.format(labels.shape))
         print('predictions.shape: {}'.format(predictions.shape))
         
-        trial_score = roc_auc_score(self._validation_pool.get_label(), predictions)
+        trial_score = roc_auc_score(labels, predictions)
         print('File: {} Class: {} Function: {} State: {} \n'.format('hyperparameters_tuner.py', 'HyperparametersTuner', 'objective', 'End'))
         return {'loss': (1 - trial_score), 'status': STATUS_OK }
