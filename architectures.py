@@ -23,9 +23,9 @@ class CATBOOST_ENSEMBLE:
         self._classifier_class = CatBoostClassifier
         self._classifiers = []
         self._validation_size = 0.3
-        self._random_state = 42
+        self._random_state = 13
         self._max_data = 400000
-        self._max_evaluations = 2
+        self._max_evaluations = 5
         self._dataset_budget_threshold = 0.8
         self._over_sampler = RandomOverSampler(self._random_state)
         self._sampler = RandomSampler(self._max_data)
@@ -33,7 +33,8 @@ class CATBOOST_ENSEMBLE:
             'loss_function': 'Logloss',
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
-            'od_pval': pow(10, -2),
+            'early_stopping_rounds': 50,
+            'od_wait': 10,
             'n_estimators': 700,
             'depth': 8,
             'random_strength': 1,
@@ -47,7 +48,8 @@ class CATBOOST_ENSEMBLE:
             'loss_function': 'Logloss',
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
-            'od_pval': pow(10, -2),
+            'early_stopping_rounds': 50,
+            'od_wait': 10,
             'n_estimators': scope.int(hp.quniform('n_estimators', 400, 1000, 100)),
             'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
             'random_strength': scope.int(hp.quniform('random_strength', 1, 5, 1)),
@@ -134,10 +136,6 @@ class CATBOOST_ENSEMBLE:
                         probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(validation_pool)[:,1]))
 
                 probabilities = np.transpose(probabilities)
-                print('\n')
-                print(137)
-                print(probabilities.shape)
-                print('\n')
                 self._lr = LogisticRegression()
                 self._lr.fit(probabilities, validation_labels)
 
