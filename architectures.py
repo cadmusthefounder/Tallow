@@ -8,6 +8,7 @@ from catboost import CatBoostClassifier, Pool
 from hyperopt import hp
 from hyperopt.pyll.base import scope
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
 from hyperparameters_tuner import HyperparametersTuner
 from samplers import RandomOverSampler, RandomSampler
 
@@ -32,7 +33,7 @@ class CATBOOST_ENSEMBLE:
             'loss_function': 'Logloss',
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
-            'od_pval': pow(10, -3),
+            'od_pval': pow(10, -2),
             'n_estimators': 700,
             'depth': 8,
             'random_strength': 1,
@@ -46,7 +47,7 @@ class CATBOOST_ENSEMBLE:
             'loss_function': 'Logloss',
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
-            'od_pval': pow(10, -3),
+            'od_pval': pow(10, -2),
             'n_estimators': scope.int(hp.quniform('n_estimators', 400, 1000, 100)),
             'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
             'random_strength': scope.int(hp.quniform('random_strength', 1, 5, 1)),
@@ -57,6 +58,7 @@ class CATBOOST_ENSEMBLE:
             'verbose': False
         }
         self._best_hyperparameters = None
+        self._lr = None
 
     def fit(self, F, y, datainfo, timeinfo):
         print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'Start'))
@@ -123,6 +125,16 @@ class CATBOOST_ENSEMBLE:
             classifier.fit(train_pool, eval_set=validation_pool)   
             self._classifiers.append(classifier)
 
+            probabilities = np.zeros(len(validation_data))
+            for i in range(len(self._classifiers)):
+                if i == 0:
+                    probabilities = self._classifiers[i].predict_proba(validation_pool)[:,1]
+                else:
+                    probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(validation_pool)[:,1]))
+
+            probabilities = np.transpose(probabilities)
+            self._lr = LogisticRegression()
+            self._lr.fit(probabilities, validation_labels)
 
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'End'))
     
@@ -155,10 +167,13 @@ class CATBOOST_ENSEMBLE:
         test_pool = Pool(transformed_data, cat_features=category_indices)
         
         probabilities = np.zeros(len(transformed_data))
-        for classifier in self._classifiers:
-            probabilities += classifier.predict_proba(test_pool)[:,1]
+        for i in range(len(self._classifiers)):
+            if i == 0:
+                probabilities = self._classifiers[i].predict_proba(transformed_data)[:,1]
+            else:
+                probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(transformed_data)[:,1]))
 
-        probabilities = np.true_divide(probabilities, len(self._classifiers))
+        probabilities = self._lr.predict_proba(probabilities)
         print('probabilities.shape: {}'.format(probabilities.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'predict', 'End'))
         return probabilities
