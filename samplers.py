@@ -8,6 +8,7 @@ class RandomOverSampler:
         self._random_state = random_state
     
     def sample(self, X, y):
+        print('\nFile: {} Class: {} Function: {} State: {}'.format('samplers.py', 'RandomOverSampler', 'sample', 'Start'))
         random_state = check_random_state(self._random_state)
         target_stats = Counter(y)
 
@@ -21,6 +22,7 @@ class RandomOverSampler:
             sample_indices = np.append(sample_indices,
                                        target_class_indices[indices])
 
+        print('File: {} Class: {} Function: {} State: {} \n'.format('samplers.py', 'RandomOverSampler', 'sample', 'End'))
         return (safe_indexing(X, sample_indices),
                 safe_indexing(y, sample_indices))
 

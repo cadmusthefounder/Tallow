@@ -90,13 +90,19 @@ class CATBOOST_ENSEMBLE:
             random_state=self._random_state,
             shuffle=False
         )
+        print('train_data.shape: {}'.format(train_data.shape))
+        print('validation_data.shape: {}'.format(validation_data.shape))
+        
         train_data, train_labels = self._sampler.sample(train_data, train_labels)
+        print('train_data.shape: {}'.format(train_data.shape))
+        
         category_indices = None if cat_start_index is None else list(range(cat_start_index, transformed_data.shape[1]))
         train_pool = Pool(train_data, train_labels, cat_features=category_indices)
         validation_pool = Pool(validation_data, validation_labels, cat_features=category_indices)
 
         self._classifier = self._classifier_class(**self._fixed_hyperparameters)
-        self._classifier.fit(train_pool, eval_set=validation_pool)
+        # self._classifier.fit(train_pool, eval_set=validation_pool)
+        self._classifier.fit(train_pool)
         
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'End'))
     
