@@ -39,7 +39,8 @@ class CATBOOST_ENSEMBLE:
             'bagging_temperature': 1,
             'has_time': True,
             'boosting_type': 'Plain',
-            'max_ctr_complexity': 2
+            'max_ctr_complexity': 2,
+            'verbose': False
         }
         self._search_space = {
             'loss_function': 'Logloss',
@@ -52,7 +53,8 @@ class CATBOOST_ENSEMBLE:
             'bagging_temperature': hp.loguniform('bagging_temperature', np.log(0.1), np.log(3)),
             'has_time': True,
             'boosting_type': 'Plain',
-            'max_ctr_complexity': 2
+            'max_ctr_complexity': 2,
+            'verbose': False
         }
         self._best_hyperparameters = None
 
@@ -152,7 +154,7 @@ class CATBOOST_ENSEMBLE:
         
         probabilities = np.zeros(len(transformed_data))
         for classifier in self._classifiers:
-            probabilities += self._classifier.predict_proba(test_pool)[:,1]
+            probabilities += classifier.predict_proba(test_pool)[:,1]
 
         probabilities = np.true_divide(probabilities, len(self._classifiers))
         print('probabilities.shape: {}'.format(probabilities.shape))
