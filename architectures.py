@@ -96,7 +96,7 @@ class CATBOOST_ENSEMBLE:
             y,
             test_size=self._validation_size,
             random_state=self._random_state,
-            shuffle=False
+            shuffle=True
         )
         print('train_data.shape: {}'.format(train_data.shape))
         print('train_labels.shape: {}'.format(train_labels.shape))
