@@ -85,7 +85,7 @@ class CATBOOST_ENSEMBLE:
             random_state=42,
             shuffle=False
         )
-        category_indices = None if cat_start_index is None else list(range(cat_start_index, train_data.shape[1]))
+        category_indices = None if cat_start_index is None else list(range(cat_start_index, transformed_data.shape[1]))
         train_pool = Pool(train_data, train_labels, cat_features=category_indices)
         validation_pool = Pool(validation_data, validation_labels, cat_features=category_indices)
 
@@ -119,7 +119,7 @@ class CATBOOST_ENSEMBLE:
             transformed_data = np.concatenate((transformed_data, mvc_data), axis=1)
         print('transformed_data.shape: {}'.format(transformed_data.shape))
 
-        category_indices = None if cat_start_index is None else list(range(cat_start_index, train_data.shape[1]))
+        category_indices = None if cat_start_index is None else list(range(cat_start_index, transformed_data.shape[1]))
         test_pool = Pool(transformed_data, cat_features=category_indices)
         probabilities = self._classifier.predict_proba(test_pool)[:,1]
         print('probabilities.shape: {}'.format(probabilities.shape))
