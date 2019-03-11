@@ -9,15 +9,10 @@ ARCHITECTURE = CATBOOST_ENSEMBLE.NAME
 architecture_mapping = {
     CATBOOST_ENSEMBLE.NAME: CATBOOST_ENSEMBLE
 }
-import numpy as np
 
 class Model:
 
     def __init__(self, datainfo, timeinfo):
-        a = np.array([1,2,3,4,5,6,7,8,9,10])
-        indices = np.sort(np.random.choice(len(a), 5, replace=False))
-        print(indices)
-        print(a[indices])
         self._architecture = architecture_mapping[ARCHITECTURE](datainfo, timeinfo)
         
     def fit(self, F, y, datainfo, timeinfo):

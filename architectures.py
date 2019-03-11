@@ -25,7 +25,7 @@ class CATBOOST_ENSEMBLE:
         self._validation_size = 0.3
         self._random_state = 42
         self._max_data = 400000
-        self._max_evaluations = 15
+        self._max_evaluations = 2
         self._dataset_budget_threshold = 0.8
         self._over_sampler = RandomOverSampler(self._random_state)
         self._sampler = RandomSampler(self._max_data)
@@ -133,6 +133,10 @@ class CATBOOST_ENSEMBLE:
                     probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(validation_pool)[:,1]))
 
             probabilities = np.transpose(probabilities)
+            print('\n')
+            print(137)
+            print(probabilities.shape)
+            print('\n')
             self._lr = LogisticRegression()
             self._lr.fit(probabilities, validation_labels)
 
