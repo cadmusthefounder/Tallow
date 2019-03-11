@@ -50,6 +50,9 @@ class RandomSampler:
 
     def sample(self, X, y):
         print('\nFile: {} Class: {} Function: {} State: {}'.format('samplers.py', 'RandomSampler', 'sample', 'Start'))
+        
+        if len(X) < self._max_data:
+            return X, y
         indices = np.sort(np.random.choice(len(X), self._max_data, replace=False))
         print('File: {} Class: {} Function: {} State: {} \n'.format('samplers.py', 'RandomSampler', 'sample', 'End'))
         return X[indices,:], y[indices]
