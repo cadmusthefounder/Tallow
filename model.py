@@ -9,6 +9,7 @@ ARCHITECTURE = CATBOOST_ENSEMBLE.NAME
 architecture_mapping = {
     CATBOOST_ENSEMBLE.NAME: CATBOOST_ENSEMBLE
 }
+import numpy as np
 
 class Model:
 
