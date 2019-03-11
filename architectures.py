@@ -8,7 +8,7 @@ from catboost import CatBoostClassifier, Pool
 from hyperopt import hp
 from hyperopt.pyll.base import scope
 from sklearn.model_selection import train_test_split
-from samplers import RandomOverSampler
+from samplers import RandomOverSampler, RandomSampler
 
 class CATBOOST_ENSEMBLE:
     NAME = 'CATBOOST_ENSEMBLE'
@@ -22,7 +22,9 @@ class CATBOOST_ENSEMBLE:
         self._classifier = None
         self._validation_size = 0.3
         self._random_state = 42
-        self._sampler = RandomOverSampler(self._random_state)
+        self._max_data = 400000
+        self._over_sampler = RandomOverSampler(self._random_state)
+        self._sampler = RandomSampler(self._max_data)
         self._fixed_hyperparameters = {
             'loss_function': 'Logloss',
             # 'eval_metric': 'AUC:hints=skip_train~false',
@@ -93,6 +95,9 @@ class CATBOOST_ENSEMBLE:
         print('train_data.shape: {}'.format(train_data.shape))
         print('validation_data.shape: {}'.format(validation_data.shape))
         
+        train_data, train_labels = self._over_sampler.sample(train_data, train_labels)
+        print('train_data.shape: {}'.format(train_data.shape))
+
         train_data, train_labels = self._sampler.sample(train_data, train_labels)
         print('train_data.shape: {}'.format(train_data.shape))
         

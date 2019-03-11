@@ -42,3 +42,14 @@ class RandomOverSampler:
             for (key, value) in target_stats.items() if key != class_majority
         }
         return sampling_strategy
+
+class RandomSampler:
+
+    def __init__(self, max_data):
+        self._max_data = max_data
+
+    def sample(self, X, y):
+        print('\nFile: {} Class: {} Function: {} State: {}'.format('samplers.py', 'RandomSampler', 'sample', 'Start'))
+        indices = np.sort(np.random.choice(len(X), self._max_data, replace=False))
+        print('File: {} Class: {} Function: {} State: {} \n'.format('samplers.py', 'RandomSampler', 'sample', 'End'))
+        return X[indices,:], y[indices]
