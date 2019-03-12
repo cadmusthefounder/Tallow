@@ -129,8 +129,8 @@ def encode_frequency(frequency_map, categorical_or_mvc_data):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'encode_frequency', 'Start'))
     result = np.array([])
     for i in range(categorical_or_mvc_data.shape[1]):
-        encoded_col = np.array(list(map(lambda x: dict(frequency_map[i])[x], categorical_or_mvc_data[:,i])))
-        result = [encoded_col] if i == 0 else np.concatenate((result, [encoded_col]), axis=1)
+        encoded_col = np.array(list(map(lambda x: dict(frequency_map[i])[x], categorical_or_mvc_data[:,i]))).reshape(-1,1)
+        result = encoded_col if i == 0 else np.concatenate((result, encoded_col), axis=1)
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'encode_frequency', 'End'))
     return result
 
