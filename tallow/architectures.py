@@ -101,6 +101,7 @@ class CATBOOST_ENSEMBLE:
                 count_frequency(self._categorical_frequency_map, categorical_data)
             cat_start_index = transformed_data.shape[1]
             transformed_data = np.concatenate((transformed_data, categorical_data), axis=1)
+            self._info['transformed_mvc_data_starting_index'] = len(transformed_data)
         if len(mvc_data) > 0: 
             self._info['transformed_mvc_data_starting_index'] = len(transformed_data)
             if self._iteration == 0:
