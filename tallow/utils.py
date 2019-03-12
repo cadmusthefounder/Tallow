@@ -51,6 +51,7 @@ def print_time_info(info):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'print_time_info', 'Start'))
     print('Overall time spent: {0:5.2f} seconds'.format(info['overall_time_spent']))
     print('Dataset time spent: {0:5.2f} seconds'.format(info['dataset_time_spent'])) 
+    print('Time budget: {0:5.2f} seconds'.format(info['time_budget'])) 
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'print_time_info', 'End'))
 
 def get_data(F, info):

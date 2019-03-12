@@ -51,7 +51,7 @@ class CATBOOST_ENSEMBLE:
             'early_stopping_rounds': 7,
             'n_estimators': scope.int(hp.quniform('n_estimators', 500, 1000, 100)),
             'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
-            'random_strength': hp.loguniform('random_strength', np.log(0.5), np.log(5)),
+            'random_strength': hp.loguniform('random_strength', np.log(1), np.log(2)),
             'bagging_temperature': hp.loguniform('bagging_temperature', np.log(0.1), np.log(3)),
             'boosting_type': 'Plain',
             'max_ctr_complexity': 2,
