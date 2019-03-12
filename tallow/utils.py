@@ -134,13 +134,16 @@ def difference_between_time_columns(time_data):
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'difference_between_time_columns', 'End'))
     return result
 
-def count_frequency(frequency_map, categorical_or_mvc_data):
+def count_frequency(categorical_or_mvc_data):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'count_frequency', 'Start'))
-    for i in range(categorical_or_mvc_data.shape[1]):
-        count = Counter(categorical_or_mvc_data[:,i])
-        frequency_map[i] = count if not i in frequency_map else frequency_map[i] + count
+
+    df = pd.Dataframe(categorical_or_mvc_data)
+    map = df.apply(pd.value_counts)
+    # for i in range(categorical_or_mvc_data.shape[1]):
+    #     count = Counter(categorical_or_mvc_data[:,i])
+    #     frequency_map[i] = count if not i in frequency_map else frequency_map[i] + count
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'count_frequency', 'End'))
-    return frequency_map
+    return map
 
 def encode_frequency(frequency_map, categorical_or_mvc_data):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'encode_frequency', 'Start'))

@@ -10,7 +10,23 @@ architecture_mapping = {
     CATBOOST_ENSEMBLE.NAME: CATBOOST_ENSEMBLE
 }
 
+import numpy as np 
+import pandas as pd
+from utils import *
+
 class Model:
+
+    X1 = [
+        ['apple', '5', '1'],
+        ['apple', '5', '1'],
+        ['pear', '2', '0'],
+        ['apple', '2', '1'],
+        ['apple', '0', '1'],
+        ['pear', '3', '0']
+    ]
+
+    counts = count_frequency(X1)
+    print(counts)
 
     def __init__(self, datainfo, timeinfo):
         self._architecture = architecture_mapping[ARCHITECTURE](datainfo, timeinfo)
