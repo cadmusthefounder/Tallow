@@ -19,7 +19,8 @@ class Model:
         self._architecture = architecture_mapping[ARCHITECTURE](datainfo, timeinfo)
         
     def fit(self, F, y, datainfo, timeinfo):
-        X = [
+        count = {}
+        X1 = [
             ['apple', '5', 'dog'],
             ['orange', '2', 'cat'],
             ['pear', '3', 'dog'],
@@ -30,16 +31,15 @@ class Model:
             ['pear', '4', 'dog']
         ]
         Y = [0, 1, 1, 1, 0, 0, 1, 0]
-        X = np.array(X)
+        X1 = np.array(X1)
         Y = np.array(Y)
         for i in range(X.shape[1]):
-            d0 = pd.DataFrame({'X': X[:,i], 'Y': Y})
+            d0 = pd.DataFrame({'X': X1[:,i]})
             d1 = d0.groupby('X',as_index=True)
             d2 = pd.DataFrame({},index=[])
-            d2['COUNT'] = d1.count().Y
+            d2['COUNT'] = d1.count()
             d3 = d0.join(d2, on='X')[['COUNT']].values
-            print(d2)
-            print(d3)
+            count(i) = d3
 
         self._architecture.fit(F, y, datainfo, timeinfo)
 
