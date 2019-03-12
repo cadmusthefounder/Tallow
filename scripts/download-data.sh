@@ -8,3 +8,14 @@ cd ./AutoML3_input_data
 unzip AutoML3_input_data.zip
 rm AutoML3_input_data.zip
 cd ../
+
+mv AutoML3_input_data AutoML3_AA 
+mkdir AutoML3_B
+mkdir AutoML3_C
+mkdir AutoML3_D
+mkdir AutoML3_E
+
+mv AutoML3_AA/B AutoML3_B
+mv AutoML3_AA/C AutoML3_C
+mv AutoML3_AA/D AutoML3_D
+mv AutoML3_AA/E AutoML3_E

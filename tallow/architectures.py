@@ -34,29 +34,31 @@ class CATBOOST_ENSEMBLE:
             'loss_function': 'Logloss',
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
+            'best_model_min_trees': 100,
             'early_stopping_rounds': 7,
-            'n_estimators': 700,
             'depth': 8,
             'random_strength': 1,
             'bagging_temperature': 1,
             'boosting_type': 'Plain',
             'max_ctr_complexity': 2,
             'verbose': True,
-            'random_state': self._random_state
+            'random_state': self._random_state,
+            'has_time': True
         }
         self._search_space = {
             'loss_function': 'Logloss',
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
+            'best_model_min_trees': scope.int(hp.quniform('best_model_min_trees', 100, 400, 50)),
             'early_stopping_rounds': 7,
-            'n_estimators': scope.int(hp.quniform('n_estimators', 500, 1000, 100)),
             'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
             'random_strength': hp.loguniform('random_strength', np.log(1), np.log(2)),
             'bagging_temperature': hp.loguniform('bagging_temperature', np.log(0.1), np.log(3)),
             'boosting_type': 'Plain',
             'max_ctr_complexity': 2,
             'verbose': False,
-            'random_state': self._random_state
+            'random_state': self._random_state,
+            'has_time': True
         }
         self._best_hyperparameters = None
         self._lr = None
@@ -97,7 +99,7 @@ class CATBOOST_ENSEMBLE:
             y,
             test_size=self._validation_size,
             random_state=self._random_state,
-            shuffle=True
+            stratify=y
         )
         print('train_data.shape: {}'.format(train_data.shape))
         print('train_labels.shape: {}'.format(train_labels.shape))
@@ -140,7 +142,8 @@ class CATBOOST_ENSEMBLE:
                 probabilities = np.transpose(probabilities)
                 self._lr = LogisticRegression()
                 self._lr.fit(probabilities, validation_labels)
-
+        else:
+            print('Time budget exceeded.')
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'End'))
     
     def predict(self, F, datainfo, timeinfo):
