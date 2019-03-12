@@ -134,14 +134,14 @@ def difference_between_time_columns(time_data):
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'difference_between_time_columns', 'End'))
     return result
 
-def count_frequency(categorical_or_mvc_data):
+def count_frequency(frequency_map, categorical_or_mvc_data):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'count_frequency', 'Start'))
 
-    df = pd.DataFrame(categorical_or_mvc_data)
-    map = df.apply(pd.value_counts).fillna(0)
-    # for i in range(categorical_or_mvc_data.shape[1]):
-    #     count = Counter(categorical_or_mvc_data[:,i])
-    #     frequency_map[i] = count if not i in frequency_map else frequency_map[i] + count
+    # df = pd.DataFrame(categorical_or_mvc_data)
+    # map = df.apply(pd.value_counts).fillna(0)
+    for i in range(categorical_or_mvc_data.shape[1]):
+        count = Counter(categorical_or_mvc_data[:,i])
+        frequency_map[i] = count if not i in frequency_map else frequency_map[i] + count
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'count_frequency', 'End'))
     return map
 
@@ -150,7 +150,7 @@ def encode_frequency(frequency_map, categorical_or_mvc_data):
     result = np.array([])
     for i in range(categorical_or_mvc_data.shape[1]):
         counts = dict(frequency_map[i])
-        encoded_col = pd.Series(categorical_or_mvc_data[:,i]).replace(counts).values.reshape(-1,1)
+        encoded_col = pd.Series(categorical_or_mvc_data[:,i]).map(counts).values.reshape(-1,1)
 
         # encoded_col = np.array(list(map(lambda x: dict(frequency_map[i])[x], categorical_or_mvc_data[:,i]))).reshape(-1,1)
         result = encoded_col if i == 0 else np.concatenate((result, encoded_col), axis=1)

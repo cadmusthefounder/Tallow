@@ -18,23 +18,23 @@ class Model:
 
     def __init__(self, datainfo, timeinfo):
 
-        X1 = [
-            ['apple', '5', '1'],
-            ['apple', '5', '1'],
-            ['pear', '2', '0'],
-            ['apple', '2', '1'],
-            ['apple', '0', '1'],
-            ['pear', '3', '0']
-        ]
-        df = pd.DataFrame(X1)
-        counts = count_frequency(X1)
-        print(df)
-        print(counts)
+        # X1 = [
+        #     ['apple', '5', '1'],
+        #     ['apple', '5', '1'],
+        #     ['pear', '2', '0'],
+        #     ['apple', '2', '1'],
+        #     ['apple', '0', '1'],
+        #     ['pear', '3', '0']
+        # ]
+        # df = pd.DataFrame(X1)
+        # counts = count_frequency(X1)
+        # print(df)
+        # print(counts)
         
-        new_df = pd.DataFrame()
-        for x in df.columns:
-            new_df[x] = df[x].apply(lambda row: counts[x][row])
-        print(new_df)
+        # new_df = pd.DataFrame()
+        # for x in df.columns:
+        #     new_df[x] = df[x].apply(lambda row: counts[x][row])
+        # print(new_df)
         self._architecture = architecture_mapping[ARCHITECTURE](datainfo, timeinfo)
         
     def fit(self, F, y, datainfo, timeinfo):
