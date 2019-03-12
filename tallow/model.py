@@ -26,14 +26,18 @@ class Model:
             ['apple', '0', '1'],
             ['pear', '3', '0']
         ]
-        df = pd.DataFrame(X1)
-        counts = count_frequency(X1).reset_index()
+        df = pd.DataFrame({'X1': X1})
+        df2 = df.groupby('X1', as_index=True)
         print(df)
-        print(counts)
-        print(df.index)
-        print(counts.index.tolist())
-        new = pd.merge(df, counts, on=counts.index.tolist())
-        print(new)
+        print(df2)
+
+        # counts = count_frequency(X1).reset_index()
+        # print(df)
+        # print(counts)
+        # print(df.index)
+        # print(counts.index.tolist())
+        # new = pd.merge(df, counts, on=counts.index.tolist())
+        # print(new)
         self._architecture = architecture_mapping[ARCHITECTURE](datainfo, timeinfo)
         
     def fit(self, F, y, datainfo, timeinfo):
