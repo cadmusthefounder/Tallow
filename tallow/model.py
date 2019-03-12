@@ -17,21 +17,6 @@ from utils import *
 class Model:
 
     def __init__(self, datainfo, timeinfo):
-        # generating random DataFrame
-        brands_list = ['brand{}'.format(i) for i in range(10)]
-        a = pd.DataFrame({'brands': np.random.choice(brands_list, 100)})
-        b = pd.DataFrame(np.random.randint(0,10,size=(100, 3)), columns=list('ABC'))
-        df = pd.concat([a, b], axis=1)
-        print(df.head())
-
-        # generate 'brands' DF
-        brands = pd.DataFrame(df.brands.value_counts().reset_index())
-        brands.columns = ['brands', 'count']
-        print(brands)
-
-        # merge 'df' & 'brands_count'
-        merged = pd.merge(df, brands, on='brands')
-        print(merged)
 
         X1 = [
             ['apple', '5', '1'],
@@ -42,7 +27,7 @@ class Model:
             ['pear', '3', '0']
         ]
         df = pd.DataFrame(X1)
-        counts = count_frequency(X1)
+        counts = count_frequency(X1).reset_index()
         print(df)
         print(counts)
         print(df.index)
