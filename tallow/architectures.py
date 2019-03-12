@@ -176,8 +176,8 @@ class CATBOOST_ENSEMBLE:
             encoded_transformed_categorical_data = encode_frequency(self._categorical_frequency_map, transformed_categorical_data)
         if len(transformed_mvc_data) > 0:
             encoded_transformed_mvc_data = encode_frequency(self._mvc_frequency_map, transformed_mvc_data)
-        self._train_data = np.concatenate((self._train_data, encoded_transformed_categorical_data), axis=1) if len(encoded_transformed_categorical_data) > 0 : self._train_data
-        self._train_data = np.concatenate((self._train_data, encoded_transformed_mvc_data), axis=1) if len(encoded_transformed_mvc_data) > 0 : self._train_data
+        self._train_data = np.concatenate((self._train_data, encoded_transformed_categorical_data), axis=1) if len(encoded_transformed_categorical_data) > 0 else self._train_data
+        self._train_data = np.concatenate((self._train_data, encoded_transformed_mvc_data), axis=1) if len(encoded_transformed_mvc_data) > 0 else self._train_data
 
         # encode validation data
         transformed_time_data, transformed_numerical_data, \
@@ -188,8 +188,8 @@ class CATBOOST_ENSEMBLE:
             encoded_transformed_categorical_data = encode_frequency(self._categorical_frequency_map, transformed_categorical_data)
         if len(transformed_mvc_data) > 0:
             encoded_transformed_mvc_data = encode_frequency(self._mvc_frequency_map, transformed_mvc_data)
-        self._validation_data = np.concatenate((self._validation_data, encoded_transformed_categorical_data), axis=1) if len(encoded_transformed_categorical_data) > 0 : self._validation_data
-        self._validation_data = np.concatenate((self._validation_data, encoded_transformed_mvc_data), axis=1) if len(encoded_transformed_mvc_data) > 0 : self._validation_data
+        self._validation_data = np.concatenate((self._validation_data, encoded_transformed_categorical_data), axis=1) if len(encoded_transformed_categorical_data) > 0 else self._validation_data
+        self._validation_data = np.concatenate((self._validation_data, encoded_transformed_mvc_data), axis=1) if len(encoded_transformed_mvc_data) > 0 else self._validation_data
 
         print('self._train_data.shape: {}'.format(self._train_data.shape))
         print('self._train_labels.shape: {}'.format(self._train_labels.shape))
