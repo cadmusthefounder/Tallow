@@ -137,7 +137,7 @@ def difference_between_time_columns(time_data):
 def count_frequency(categorical_or_mvc_data):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'count_frequency', 'Start'))
 
-    df = pd.Dataframe(categorical_or_mvc_data)
+    df = pd.DataFrame(categorical_or_mvc_data)
     map = df.apply(pd.value_counts)
     # for i in range(categorical_or_mvc_data.shape[1]):
     #     count = Counter(categorical_or_mvc_data[:,i])
