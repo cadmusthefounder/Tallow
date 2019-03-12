@@ -31,14 +31,29 @@ class Model:
             ['apple', '3', 'dog'],
             ['pear', '4', 'dog']
         ]
-        Y = [0, 1, 1, 1, 0, 0, 1, 0]
         X1 = np.array(X1)
-        Y = np.array(Y)
         for i in range(X1.shape[1]):
-            d0 = pd.DataFrame({'X1': X1[:,i].T})
-            count = Counter(d0['X1'])
-            print(count)
+            df= pd.DataFrame({'X1': X1[:,i]})
+            count_i = Counter(df['X1'])
+            count[i] = dict(count_i)
 
+        print(count)
+        X2 = [
+            ['apple', '1', 'cat'],
+            ['orange', '2', 'cat'],
+            ['pear', '5', 'dog'],
+            ['pear', '5', 'cat'],
+            ['orange', '1', 'cat'],
+            ['orange', '5', 'cat'],
+            ['orange', '3', 'dog'],
+            ['grapes', '2', 'dog']
+        ]
+        X2 = np.array(X2)
+        for i in range(X2.shape[1]):
+            df= pd.DataFrame({'X2': X2[:,i]})
+            count_i = Counter(df['X2'])
+            count[i].update(count_i)
+        print(count)
         self._architecture.fit(F, y, datainfo, timeinfo)
 
     def predict(self, F, datainfo, timeinfo):
