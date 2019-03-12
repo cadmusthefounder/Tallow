@@ -29,6 +29,8 @@ class Model:
         counts = count_frequency(X1)
         print(df)
         print(counts)
+        print(df.index)
+        print(counts.index)
         # new = df.join(counts, on=)
         self._architecture = architecture_mapping[ARCHITECTURE](datainfo, timeinfo)
         
