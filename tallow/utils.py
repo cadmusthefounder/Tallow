@@ -147,7 +147,7 @@ def encode_frequency(frequency_map, categorical_or_mvc_data):
     result = np.array([])
     for i in range(categorical_or_mvc_data.shape[1]):
         counts = dict(frequency_map[i])
-        encoded_col = categorical_or_mvc_data[:,i].replace(counts).values.reshape(-1,1)
+        encoded_col = pd.Series(categorical_or_mvc_data[:,i]).replace(counts).values.reshape(-1,1)
 
         # encoded_col = np.array(list(map(lambda x: dict(frequency_map[i])[x], categorical_or_mvc_data[:,i]))).reshape(-1,1)
         result = encoded_col if i == 0 else np.concatenate((result, encoded_col), axis=1)
