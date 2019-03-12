@@ -225,18 +225,19 @@ class CATBOOST_ENSEMBLE:
             print('Time budget exceeded.')
 
         test_pool = Pool(transformed_data, cat_features=self._category_indices)
-        if len(self._classifiers) == 1:
-            probabilities = self._classifiers[0].predict_proba(transformed_data)[:,1]
-        else:
-            probabilities = np.zeros(len(transformed_data))
-            for i in range(len(self._classifiers)):
-                if i == 0:
-                    probabilities = self._classifiers[i].predict_proba(transformed_data)[:,1]
-                else:
-                    probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(transformed_data)[:,1]))
+        probabilities = self._classifiers[-1].predict_proba(transformed_data)[:,1]
+        # if len(self._classifiers) == 1:
+        #     probabilities = self._classifiers[0].predict_proba(transformed_data)[:,1]
+        # else:
+        #     probabilities = np.zeros(len(transformed_data))
+        #     for i in range(len(self._classifiers)):
+        #         if i == 0:
+        #             probabilities = self._classifiers[i].predict_proba(transformed_data)[:,1]
+        #         else:
+        #             probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(transformed_data)[:,1]))
 
-            probabilities = np.transpose(probabilities)
-            probabilities = self._lr.predict_proba(probabilities)[:,1]
+        #     probabilities = np.transpose(probabilities)
+        #     probabilities = self._lr.predict_proba(probabilities)[:,1]
         print('probabilities.shape: {}'.format(probabilities.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'predict', 'End'))
         return probabilities
