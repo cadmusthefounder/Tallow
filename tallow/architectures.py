@@ -222,7 +222,7 @@ class CATBOOST_ENSEMBLE:
 
                 probabilities = np.transpose(probabilities)
                 self._lr = LogisticRegression()
-                self._lr.fit(probabilities, validation_labels)
+                self._lr.fit(probabilities, validation_pool.get_label())
         else:
             print('Time budget exceeded.')
 
