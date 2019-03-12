@@ -34,8 +34,8 @@ class Model:
         X1 = np.array(X1)
         Y = np.array(Y)
         for i in range(X1.shape[1]):
-            d0 = pd.DataFrame({'X': X1[:,i].T})
-            d1 = d0.groupby('X').count()
+            d0 = pd.DataFrame({'X1': X1[:,i].T})
+            d1 = d0.groupby('X1').size()
             print(d1)
 
         self._architecture.fit(F, y, datainfo, timeinfo)
