@@ -34,8 +34,7 @@ class Model:
         X1 = np.array(X1)
         for i in range(X1.shape[1]):
             df= pd.DataFrame({'X1': X1[:,i]})
-            count_i = Counter(df['X1'])
-            count[i] = dict(count_i)
+            count[i] = Counter(df['X1'])
 
         print(count)
         X2 = [
@@ -51,8 +50,7 @@ class Model:
         X2 = np.array(X2)
         for i in range(X2.shape[1]):
             df= pd.DataFrame({'X2': X2[:,i]})
-            count_i = Counter(df['X2'])
-            count[i].update(count_i)
+            count[i] += Counter(df['X2'])
         print(count)
         self._architecture.fit(F, y, datainfo, timeinfo)
 
