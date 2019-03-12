@@ -36,7 +36,7 @@ class Model:
             d0 = pd.DataFrame({'X': X[:,i], 'Y': Y})
             d1 = d0.groupby('X',as_index=True)
             d2 = pd.DataFrame({},index=[])
-            d2['COUNT'] = d1.count().Y
+            d2['COUNT'] = d1.count()
             print(d2)
 
         self._architecture.fit(F, y, datainfo, timeinfo)
