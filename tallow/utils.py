@@ -138,7 +138,7 @@ def count_frequency(categorical_or_mvc_data):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'count_frequency', 'Start'))
 
     df = pd.DataFrame(categorical_or_mvc_data)
-    map = df.apply(pd.value_counts)
+    map = df.apply(pd.value_counts).fillna(0)
     # for i in range(categorical_or_mvc_data.shape[1]):
     #     count = Counter(categorical_or_mvc_data[:,i])
     #     frequency_map[i] = count if not i in frequency_map else frequency_map[i] + count

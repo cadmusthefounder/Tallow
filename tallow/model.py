@@ -16,19 +16,20 @@ from utils import *
 
 class Model:
 
-    X1 = [
-        ['apple', '5', '1'],
-        ['apple', '5', '1'],
-        ['pear', '2', '0'],
-        ['apple', '2', '1'],
-        ['apple', '0', '1'],
-        ['pear', '3', '0']
-    ]
-
-    counts = count_frequency(X1)
-    print(counts)
-
     def __init__(self, datainfo, timeinfo):
+        X1 = [
+            ['apple', '5', '1'],
+            ['apple', '5', '1'],
+            ['pear', '2', '0'],
+            ['apple', '2', '1'],
+            ['apple', '0', '1'],
+            ['pear', '3', '0']
+        ]
+        df = pd.DataFrame(X1)
+        counts = count_frequency(X1)
+        print(df)
+        print(counts)
+        # new = df.join(counts, on=)
         self._architecture = architecture_mapping[ARCHITECTURE](datainfo, timeinfo)
         
     def fit(self, F, y, datainfo, timeinfo):
