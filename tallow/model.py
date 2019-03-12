@@ -29,7 +29,7 @@ class Model:
         df = pd.DataFrame({'X1': X1})
         df2 = df.groupby('X1', as_index=True)
         print(df)
-        print(df2.size())
+        # print(df2.size())
         print(df2.count())
         print(df2.value_counts())
 
