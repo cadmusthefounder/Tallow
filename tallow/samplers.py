@@ -46,13 +46,13 @@ class RandomOverSampler:
 class RandomSampler:
 
     def __init__(self, max_data):
-        self._max_data = max_data
+        self.max_data = max_data
 
     def sample(self, X, y):
         print('\nFile: {} Class: {} Function: {} State: {}'.format('samplers.py', 'RandomSampler', 'sample', 'Start'))
         
-        if len(X) < self._max_data:
+        if len(X) < self.max_data:
             return X, y
-        indices = np.sort(np.random.choice(len(X), self._max_data, replace=False))
+        indices = np.sort(np.random.choice(len(X), self.max_data, replace=False))
         print('File: {} Class: {} Function: {} State: {} \n'.format('samplers.py', 'RandomSampler', 'sample', 'End'))
         return X[indices,:], y[indices]

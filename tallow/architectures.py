@@ -16,9 +16,9 @@ class CATBOOST_ENSEMBLE:
     NAME = 'CATBOOST_ENSEMBLE'
 
     def __init__(self, datainfo, timeinfo):
-        info = extract(datainfo, timeinfo)
-        print_data_info(info)
-        print_time_info(info)
+        self._info = extract(datainfo, timeinfo)
+        print_data_info(self._info)
+        print_time_info(self._info)
 
         self._classifier_class = CatBoostClassifier
         self._classifiers = []
@@ -28,9 +28,10 @@ class CATBOOST_ENSEMBLE:
         self._max_data = 400000
         self._max_evaluations = 5
         self._dataset_budget_threshold = 0.8
+        self._category_indices = None
         self._categorical_frequency_map = {}
         self._mvc_frequency_map = {}
-        self._first_run = True
+        self._iteration = 0
         self._over_sampler = RandomOverSampler(self._random_state)
         self._sampler = RandomSampler(self._max_data)
         self._fixed_hyperparameters = {
@@ -69,9 +70,10 @@ class CATBOOST_ENSEMBLE:
     def fit(self, F, y, datainfo, timeinfo):
         print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'Start'))
         info = extract(datainfo, timeinfo)
-        print_time_info(info)
+        self._info.update(info)
+        print_time_info(self._info)
 
-        data = get_data(F, info)
+        data = get_data(F, self._info)
         y = y.ravel()
         print('data.shape: {}'.format(data.shape))
         print('y.shape: {}'.format(y.shape))
@@ -80,9 +82,73 @@ class CATBOOST_ENSEMBLE:
         print('Number of 0 label: {}'.format(bincount[0]))
         print('Number of 1 label: {}'.format(bincount[1]))
 
+        validation_size = 0.1 if len(data) > self._max_data else self._validation_size
+        self._sampler.max_data = 300000 if len(data) > self._max_data else self._max_data 
+        
         transformed_data = np.array([])
         cat_start_index = None
-        time_data, numerical_data, categorical_data, mvc_data = split_data_by_type(data, info)
+        time_data, numerical_data, categorical_data, mvc_data = split_data_by_type(data, self._info)
+        if len(time_data) > 0:
+            transformed_data = subtract_min_time(time_data)
+            transformed_data = np.concatenate((transformed_data, difference_between_time_columns(time_data)), axis=1)
+        if len(numerical_data) > 0:
+            self._info['transformed_numerical_data_starting_index'] = len(transformed_data)
+            transformed_data = numerical_data if len(transformed_data) == 0 else \
+                                np.concatenate((transformed_data, numerical_data), axis=1)
+        if len(categorical_data) > 0:
+            self._info['transformed_categorical_data_starting_index'] = len(transformed_data)
+            if self._iteration == 0:
+                count_frequency(self._categorical_frequency_map, categorical_data)
+            cat_start_index = transformed_data.shape[1]
+            transformed_data = np.concatenate((transformed_data, categorical_data), axis=1)
+        if len(mvc_data) > 0: 
+            self._info['transformed_mvc_data_starting_index'] = len(transformed_data)
+            if self._iteration == 0:
+                count_frequency(self._mvc_frequency_map, mvc_data)
+            cat_start_index = transformed_data.shape[1] if cat_start_index is None else cat_start_index
+            transformed_data = np.concatenate((transformed_data, mvc_data), axis=1)
+       
+        print('transformed_data.shape: {}'.format(transformed_data.shape))
+        self._category_indices = None if cat_start_index is None else list(range(cat_start_index, transformed_data.shape[1]))
+        
+        self._train_data, self._validation_data, self._train_labels, self._validation_labels = train_test_split(
+            transformed_data,
+            y,
+            test_size=validation_size,
+            random_state=self._random_state,
+            stratify=y
+        )
+        print('self._train_data.shape: {}'.format(self._train_data.shape))
+        print('self._train_labels.shape: {}'.format(self._train_labels.shape))
+        print('self._validation_data.shape: {}'.format(self._validation_data.shape))
+        print('self._validation_labels.shape: {}'.format(self._validation_labels.shape))
+        
+        self._train_data, self._train_labels = self._over_sampler.sample(self._train_data, self._train_labels)
+        print('train_data.shape: {}'.format(self._train_data.shape))
+        print('train_labels.shape: {}'.format(self._train_labels.shape))
+
+        self._train_data, self._train_labels = self._sampler.sample(self._train_data, self._train_labels)
+        print('self._train_data.shape: {}'.format(self._train_data.shape))
+        print('self._train_labels.shape: {}'.format(self._train_labels.shape))
+        
+        self._iteration += 1
+        print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'End'))
+    
+    def predict(self, F, datainfo, timeinfo):
+        print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'predict', 'Start'))
+        info = extract(datainfo, timeinfo)
+        self._info.update(info)
+        print_time_info(self._info)
+
+        data = get_data(F, self._info)
+        print('data.shape: {}'.format(data.shape))
+        
+        # transform and encode prediction data
+        transformed_data = np.array([])
+        encoded_categorical_data = np.array([])
+        encoded_mvc_data = np.array([])
+        cat_start_index = None
+        time_data, numerical_data, categorical_data, mvc_data = split_data_by_type(data, self._info)
         if len(time_data) > 0:
             transformed_data = subtract_min_time(time_data)
             transformed_data = np.concatenate((transformed_data, difference_between_time_columns(time_data)), axis=1)
@@ -90,50 +156,54 @@ class CATBOOST_ENSEMBLE:
             transformed_data = numerical_data if len(transformed_data) == 0 else \
                                 np.concatenate((transformed_data, numerical_data), axis=1)
         if len(categorical_data) > 0:
-            if self._first_run:
-                count_frequency(self._categorical_frequency_map, categorical_data)
-
-            
-            cat_start_index = transformed_data.shape[1]
+            count_frequency(self._categorical_frequency_map, categorical_data)
             transformed_data = np.concatenate((transformed_data, categorical_data), axis=1)
+            encoded_categorical_data = encode_frequency(self._categorical_frequency_map, categorical_data)
         if len(mvc_data) > 0: 
-            if self._first_run:
-                count_frequency(self._mvc_frequency_map, mvc_data)
-            cat_start_index = transformed_data.shape[1] if cat_start_index is None else cat_start_index
+            count_frequency(self._mvc_frequency_map, mvc_data)
             transformed_data = np.concatenate((transformed_data, mvc_data), axis=1)
+            encoded_mvc_data = encode_frequency(self._mvc_frequency_map, mvc_data)
+        transformed_data = np.concatenate((transformed_data, encoded_categorical_data), axis=1) if len(encoded_categorical_data) > 0 else transformed_data
+        transformed_data = np.concatenate((transformed_data, encoded_mvc_data), axis=1) if len(encoded_mvc_data) > 0 else transformed_data
         print('transformed_data.shape: {}'.format(transformed_data.shape))
-        self._first_run = False
 
-        train_data, validation_data, train_labels, validation_labels = train_test_split(
-            transformed_data,
-            y,
-            test_size=self._validation_size,
-            random_state=self._random_state,
-            stratify=y
-        )
-        print('train_data.shape: {}'.format(train_data.shape))
-        print('train_labels.shape: {}'.format(train_labels.shape))
-        print('validation_data.shape: {}'.format(validation_data.shape))
-        print('validation_labels.shape: {}'.format(validation_labels.shape))
+        # encode training data
+        transformed_time_data, transformed_numerical_data, \
+        transformed_categorical_data, transformed_mvc_data = split_data_by_type(self._train_data, self._info, transformed=True)
+        encoded_transformed_categorical_data = np.array([])
+        encoded_transformed_mvc_data = np.array([])
+        if len(transformed_categorical_data) > 0:
+            encoded_transformed_categorical_data = encode_frequency(self._categorical_frequency_map, transformed_categorical_data)
+        if len(transformed_mvc_data) > 0:
+            encoded_transformed_mvc_data = encode_frequency(self._mvc_frequency_map, transformed_mvc_data)
+        self._train_data = np.concatenate((self._train_data, encoded_transformed_categorical_data), axis=1) if len(encoded_transformed_categorical_data) > 0 : self._train_data
+        self._train_data = np.concatenate((self._train_data, encoded_transformed_mvc_data), axis=1) if len(encoded_transformed_mvc_data) > 0 : self._train_data
+
+        # encode validation data
+        transformed_time_data, transformed_numerical_data, \
+        transformed_categorical_data, transformed_mvc_data = split_data_by_type(self._validation_data, self._info, transformed=True)
+        encoded_transformed_categorical_data = np.array([])
+        encoded_transformed_mvc_data = np.array([])
+        if len(transformed_categorical_data) > 0:
+            encoded_transformed_categorical_data = encode_frequency(self._categorical_frequency_map, transformed_categorical_data)
+        if len(transformed_mvc_data) > 0:
+            encoded_transformed_mvc_data = encode_frequency(self._mvc_frequency_map, transformed_mvc_data)
+        self._validation_data = np.concatenate((self._validation_data, encoded_transformed_categorical_data), axis=1) if len(encoded_transformed_categorical_data) > 0 : self._validation_data
+        self._validation_data = np.concatenate((self._validation_data, encoded_transformed_mvc_data), axis=1) if len(encoded_transformed_mvc_data) > 0 : self._validation_data
+
+        print('self._train_data.shape: {}'.format(self._train_data.shape))
+        print('self._train_labels.shape: {}'.format(self._train_labels.shape))
+        print('self._validation_data.shape: {}'.format(self._validation_data.shape))
+        print('self._validation_labels.shape: {}'.format(self._validation_labels.shape))
+        train_pool = Pool(self._train_data, self._train_labels, cat_features=self._category_indices)
+        validation_pool = Pool(self._validation_data, self._validation_labels, cat_features=self._category_indices)
         
-        train_data, train_labels = self._over_sampler.sample(train_data, train_labels)
-        print('train_data.shape: {}'.format(train_data.shape))
-        print('train_labels.shape: {}'.format(train_labels.shape))
-
-        train_data, train_labels = self._sampler.sample(train_data, train_labels)
-        print('train_data.shape: {}'.format(train_data.shape))
-        print('train_labels.shape: {}'.format(train_labels.shape))
-        
-        category_indices = None if cat_start_index is None else list(range(cat_start_index, transformed_data.shape[1]))
-        train_pool = Pool(train_data, train_labels, cat_features=category_indices)
-        validation_pool = Pool(validation_data, validation_labels, cat_features=category_indices)
-
         if self._best_hyperparameters is None:
             tuner = HyperparametersTuner(self._classifier_class, self._fixed_hyperparameters, self._search_space, self._max_evaluations)
             self._best_hyperparameters = tuner.get_best_hyperparameters(train_pool, validation_pool)
             print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))
 
-        if has_sufficient_time(self._dataset_budget_threshold, info) or len(self._classifiers) == 0:
+        if has_sufficient_time(self._dataset_budget_threshold, self._info) or len(self._classifiers) == 0:
             classifier = self._classifier_class(**self._best_hyperparameters)
             classifier.fit(train_pool, eval_set=validation_pool)   
             self._classifiers.append(classifier)
@@ -154,36 +224,8 @@ class CATBOOST_ENSEMBLE:
                 self._lr.fit(probabilities, validation_labels)
         else:
             print('Time budget exceeded.')
-        print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'fit', 'End'))
-    
-    def predict(self, F, datainfo, timeinfo):
-        print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'CATBOOST_ENSEMBLE', 'predict', 'Start'))
-        info = extract(datainfo, timeinfo)
-        print_time_info(info)
 
-        data = get_data(F, info)
-        print('data.shape: {}'.format(data.shape))
-        
-        transformed_data = np.array([])
-        cat_start_index = None
-        time_data, numerical_data, categorical_data, mvc_data = split_data_by_type(data, info)
-        if len(time_data) > 0:
-            transformed_data = subtract_min_time(time_data)
-            transformed_data = np.concatenate((transformed_data, difference_between_time_columns(time_data)), axis=1)
-        if len(numerical_data) > 0:
-            transformed_data = numerical_data if len(transformed_data) == 0 else \
-                                np.concatenate((transformed_data, numerical_data), axis=1)
-        if len(categorical_data) > 0:
-            cat_start_index = transformed_data.shape[1]
-            transformed_data = np.concatenate((transformed_data, categorical_data), axis=1)
-        if len(mvc_data) > 0: 
-            cat_start_index = transformed_data.shape[1] if cat_start_index is None else cat_start_index
-            transformed_data = np.concatenate((transformed_data, mvc_data), axis=1)
-        print('transformed_data.shape: {}'.format(transformed_data.shape))
-
-        category_indices = None if cat_start_index is None else list(range(cat_start_index, transformed_data.shape[1]))
-        test_pool = Pool(transformed_data, cat_features=category_indices)
-
+        test_pool = Pool(transformed_data, cat_features=self._category_indices)
         if len(self._classifiers) == 1:
             probabilities = self._classifiers[0].predict_proba(transformed_data)[:,1]
         else:

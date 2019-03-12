@@ -73,22 +73,39 @@ def get_data(F, info):
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'get_data', 'End'))
     return data
 
-def split_data_by_type(data, info):
+def split_data_by_type(data, info, transformed=False):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'split_data_by_type', 'Start'))
-    time_data = np.array([]) if info['no_of_time_features'] == 0 else data[:,:info['numerical_data_starting_index']]
-    numerical_data = np.array([]) if info['no_of_numerical_features'] == 0 else \
-                    data[:,info['numerical_data_starting_index']:info['categorical_data_starting_index']]
-    categorical_data = np.array([]) if info['no_of_categorical_features'] == 0 else \
-                    data[:,info['categorical_data_starting_index']:info['mvc_data_starting_index']]
-    mvc_data = np.array([]) if info['no_of_mvc_features'] == 0 else \
-                    data[:,info['mvc_data_starting_index']:]
+    
+    if not transformed:
+        time_data = np.array([]) if info['no_of_time_features'] == 0 else data[:,:info['numerical_data_starting_index']]
+        numerical_data = np.array([]) if info['no_of_numerical_features'] == 0 else \
+                        data[:,info['numerical_data_starting_index']:info['categorical_data_starting_index']]
+        categorical_data = np.array([]) if info['no_of_categorical_features'] == 0 else \
+                        data[:,info['categorical_data_starting_index']:info['mvc_data_starting_index']]
+        mvc_data = np.array([]) if info['no_of_mvc_features'] == 0 else \
+                        data[:,info['mvc_data_starting_index']:]
 
-    print('time_data.shape :{}'.format(time_data.shape))
-    print('numerical_data.shape :{}'.format(numerical_data.shape))
-    print('categorical_data.shape :{}'.format(categorical_data.shape))
-    print('mvc_data.shape :{}\n'.format(mvc_data.shape))
-    print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'split_data_by_type', 'End'))
-    return time_data, numerical_data, categorical_data, mvc_data
+        print('time_data.shape :{}'.format(time_data.shape))
+        print('numerical_data.shape :{}'.format(numerical_data.shape))
+        print('categorical_data.shape :{}'.format(categorical_data.shape))
+        print('mvc_data.shape :{}\n'.format(mvc_data.shape))
+        print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'split_data_by_type', 'End'))
+        return time_data, numerical_data, categorical_data, mvc_data
+    else:
+        time_data = np.array([]) if info['no_of_time_features'] == 0 else data[:,:info['transformed_numerical_data_starting_index']]
+        numerical_data = np.array([]) if info['no_of_numerical_features'] == 0 else \
+                        data[:,info['transformed_numerical_data_starting_index']:info['transformed_categorical_data_starting_index']]
+        categorical_data = np.array([]) if info['no_of_categorical_features'] == 0 else \
+                        data[:,info['transformed_categorical_data_starting_index']:info['transformed_mvc_data_starting_index']]
+        mvc_data = np.array([]) if info['no_of_mvc_features'] == 0 else \
+                        data[:,info['transformed_mvc_data_starting_index']:]
+
+        print('time_data.shape :{}'.format(time_data.shape))
+        print('numerical_data.shape :{}'.format(numerical_data.shape))
+        print('categorical_data.shape :{}'.format(categorical_data.shape))
+        print('mvc_data.shape :{}\n'.format(mvc_data.shape))
+        print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'split_data_by_type', 'End'))
+        return time_data, numerical_data, categorical_data, mvc_data
 
 def subtract_min_time(time_data):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'subtract_min_time', 'Start'))
