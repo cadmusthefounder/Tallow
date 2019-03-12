@@ -31,7 +31,7 @@ class Model:
         print(counts)
         print(df.index)
         print(counts.index)
-        new = df.join(counts, right_on=counts.index)
+        new = pd.merge(df, counts, right_on=counts.index)
         print(new)
         self._architecture = architecture_mapping[ARCHITECTURE](datainfo, timeinfo)
         
