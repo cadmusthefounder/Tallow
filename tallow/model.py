@@ -35,13 +35,8 @@ class Model:
         Y = np.array(Y)
         for i in range(X1.shape[1]):
             d0 = pd.DataFrame({'X': X1[:,i]})
-            d1 = d0.groupby('X')
-            d2 = pd.DataFrame({},index=[])
-            d2['COUNT'] = d1.count()
-            print(d2)
-            d3 = d0.join(d2, on='X')[['COUNT']].values
-            count[i] = d3
-            print(d3)
+            d1 = d0.groupby('X').count()
+            print(d1)
 
         self._architecture.fit(F, y, datainfo, timeinfo)
 
