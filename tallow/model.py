@@ -39,7 +39,7 @@ class Model:
             d2 = pd.DataFrame({},index=[])
             d2['COUNT'] = d1.count()
             d3 = d0.join(d2, on='X')[['COUNT']].values
-            count(i) = d3
+            count[i] = d3
 
         self._architecture.fit(F, y, datainfo, timeinfo)
 
