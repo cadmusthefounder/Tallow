@@ -33,7 +33,7 @@ class Model:
         X = np.array(X)
         Y = np.array(Y)
         for i in range(X.shape[1]):
-            d0 = pd.DataFrame({'X': X[:,i], 'Y': incoming_labels})
+            d0 = pd.DataFrame({'X': X[:,i], 'Y': Y})
             d1 = d0.groupby('X',as_index=True)
             d2 = pd.DataFrame({},index=[])
             d2['COUNT'] = d1.count().Y
