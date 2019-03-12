@@ -213,7 +213,7 @@ class CATBOOST_ENSEMBLE:
                 self._classifiers.pop(0)
 
             if len(self._classifiers) > 1:
-                probabilities = np.zeros(len(validation_pool.get_data()))
+                probabilities = np.zeros(validation_pool.num_row())
                 for i in range(len(self._classifiers)):
                     if i == 0:
                         probabilities = self._classifiers[i].predict_proba(validation_pool)[:,1]
