@@ -26,7 +26,7 @@ class CATBOOST_ENSEMBLE:
         self._validation_size = 0.3
         self._random_state = 13
         self._max_data = 400000
-        self._max_evaluations = 5
+        self._max_evaluations = 20
         self._dataset_budget_threshold = 0.8
         self._category_indices = None
         self._categorical_frequency_map = {}
@@ -39,7 +39,7 @@ class CATBOOST_ENSEMBLE:
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
             'best_model_min_trees': 100,
-            'early_stopping_rounds': 7,
+            'early_stopping_rounds': 9,
             'depth': 8,
             'random_strength': 1,
             'bagging_temperature': 1,
@@ -54,7 +54,7 @@ class CATBOOST_ENSEMBLE:
             'eval_metric': 'AUC:hints=skip_train~false',
             'use_best_model': True,
             'best_model_min_trees': scope.int(hp.quniform('best_model_min_trees', 100, 400, 50)),
-            'early_stopping_rounds': 7,
+            'early_stopping_rounds': 9,
             'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
             'random_strength': hp.loguniform('random_strength', np.log(1), np.log(2)),
             'bagging_temperature': hp.loguniform('bagging_temperature', np.log(0.1), np.log(3)),
