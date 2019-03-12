@@ -28,6 +28,9 @@ class CATBOOST_ENSEMBLE:
         self._max_data = 400000
         self._max_evaluations = 5
         self._dataset_budget_threshold = 0.8
+        self._categorical_frequency_map = {}
+        self._mvc_frequency_map = {}
+        self._first_run = True
         self._over_sampler = RandomOverSampler(self._random_state)
         self._sampler = RandomSampler(self._max_data)
         self._fixed_hyperparameters = {
@@ -87,12 +90,19 @@ class CATBOOST_ENSEMBLE:
             transformed_data = numerical_data if len(transformed_data) == 0 else \
                                 np.concatenate((transformed_data, numerical_data), axis=1)
         if len(categorical_data) > 0:
+            if self._first_run:
+                count_frequency(self._categorical_frequency_map, categorical_data)
+
+            
             cat_start_index = transformed_data.shape[1]
             transformed_data = np.concatenate((transformed_data, categorical_data), axis=1)
         if len(mvc_data) > 0: 
+            if self._first_run:
+                count_frequency(self._mvc_frequency_map, mvc_data)
             cat_start_index = transformed_data.shape[1] if cat_start_index is None else cat_start_index
             transformed_data = np.concatenate((transformed_data, mvc_data), axis=1)
         print('transformed_data.shape: {}'.format(transformed_data.shape))
+        self._first_run = False
 
         train_data, validation_data, train_labels, validation_labels = train_test_split(
             transformed_data,

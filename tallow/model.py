@@ -13,6 +13,7 @@ architecture_mapping = {
 import numpy as np
 import pandas as pd
 from collections import Counter
+from utils import encode_frequency
 
 class Model:
 
@@ -33,7 +34,6 @@ class Model:
         ]
         X1 = np.array(X1)
         for i in range(X1.shape[1]):
-
             count[i] = Counter(X1[:,i])
 
         print(count)
@@ -52,6 +52,9 @@ class Model:
 
             count[i] += Counter(X2[:,i])
         print(count)
+
+        res = encode_frequency(count, X1)
+        print(res)
         self._architecture.fit(F, y, datainfo, timeinfo)
 
     def predict(self, F, datainfo, timeinfo):

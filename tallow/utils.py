@@ -3,6 +3,7 @@ import time
 import random
 import numpy as np
 import pandas as pd
+from collections import Counter
 
 def pip_install(package):
     pip.main(['install', package])
@@ -114,6 +115,23 @@ def difference_between_time_columns(time_data):
                     result = difference if len(result) == 0 else np.concatenate((result, difference), axis=1)
     print('result.shape: {}'.format(result.shape)) 
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'difference_between_time_columns', 'End'))
+    return result
+
+def count_frequency(frequency_map, categorical_or_mvc_data):
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'count_frequency', 'Start'))
+    for i in range(categorical_or_mvc_data.shape[1]):
+        count = Counter(categorical_or_mvc_data[:,i])
+        frequency_map[i] = count if not i in frequency_map else frequency_map[i] + count
+    print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'count_frequency', 'End'))
+    return frequency_map
+
+def encode_frequency(frequency_map, categorical_or_mvc_data):
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'encode_frequency', 'Start'))
+    result = np.array([])
+    for i in range(categorical_or_mvc_data.shape[1]):
+        encoded_col = np.array(list(map(lambda x: dict(frequency_map[i])[x], categorical_or_mvc_data[:,i])))
+        result = encoded_col if i == 0 else np.concatenate((result, encoded_col), axis=1)
+    print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'encode_frequency', 'End'))
     return result
 
 def has_sufficient_time(dataset_budget_threshold, info):
