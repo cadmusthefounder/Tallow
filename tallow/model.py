@@ -2,18 +2,13 @@ import pickle
 import os
 from os.path import isfile
 
-from architectures import CATBOOST_ENSEMBLE
-
-ARCHITECTURE = CATBOOST_ENSEMBLE.NAME
-
-architecture_mapping = {
-    CATBOOST_ENSEMBLE.NAME: CATBOOST_ENSEMBLE
-}
+from architectures import ARCHITECTURE_MAPPING, Original
 
 class Model:
 
     def __init__(self, datainfo, timeinfo):
-        self._architecture = architecture_mapping[ARCHITECTURE](datainfo, timeinfo)
+        architecture = Original.NAME
+        self._architecture = ARCHITECTURE_MAPPING[architecture](datainfo, timeinfo)
         
     def fit(self, F, y, datainfo, timeinfo):
         self._architecture.fit(F, y, datainfo, timeinfo)

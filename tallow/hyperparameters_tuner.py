@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn.metrics import roc_auc_score
 from hyperopt import fmin, tpe, space_eval, STATUS_OK, Trials
+from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
 
 class HyperparametersTuner:
 
@@ -10,7 +12,7 @@ class HyperparametersTuner:
         self._search_space = search_space
         self._max_evaluations = max_evaluations
 
-    def get_best_hyperparameters(self, train_pool, validation_pool):
+    def get_best_hyperparameters(self, train_pool, validation_pool=None):
         print('\nFile: {} Class: {} Function: {} State: {}'.format('hyperparameters_tuner.py', 'HyperparametersTuner', 'get_best_hyperparameters', 'Start'))
         self._train_pool = train_pool
         self._validation_pool = validation_pool
@@ -18,8 +20,17 @@ class HyperparametersTuner:
         # Try fixed hyperparameters
         classifier = self._classifier_class()
         classifier.set_params(**self._fixed_hyperparameters)
-        classifier.fit(self._train_pool, eval_set=self._validation_pool)
-        predictions = classifier.predict(self._validation_pool)
+        if isinstance(classifier, LGBMClassifier):
+            training_data = np.array(self._train_pool.get_features())
+            training_labels = np.array(self._train_pool.get_label())
+            validation_data = np.array(self._validation_pool.get_features())
+            validation_labels = np.array(self._validation_pool.get_label())
+            
+            classifier.fit(training_data, training_labels, eval_set=list(zip(validation_data, validation_labels))
+            predictions = classifier.predict(self._validation_pool.get_features())
+        else:
+            classifier.fit(self._train_pool, eval_set=self._validation_pool)
+            predictions = classifier.predict(self._validation_pool)
 
         labels = np.array(self._validation_pool.get_label())
         print('Fixed hyperparameters')
@@ -56,8 +67,17 @@ class HyperparametersTuner:
 
         classifier = self._classifier_class()
         classifier.set_params(**trial_hyperparameters)
-        classifier.fit(self._train_pool, eval_set=self._validation_pool)
-        predictions = classifier.predict(self._validation_pool)
+        if isinstance(classifier, LGBMClassifier):
+            training_data = np.array(self._train_pool.get_features())
+            training_labels = np.array(self._train_pool.get_label())
+            validation_data = np.array(self._validation_pool.get_features())
+            validation_labels = np.array(self._validation_pool.get_label())
+            
+            classifier.fit(training_data, training_labels, eval_set=list(zip(validation_data, validation_labels))
+            predictions = classifier.predict(self._validation_pool.get_features())
+        else:
+            classifier.fit(self._train_pool, eval_set=self._validation_pool)
+            predictions = classifier.predict(self._validation_pool)
 
         labels = np.array(self._validation_pool.get_label())
         print('labels.shape: {}'.format(labels.shape))

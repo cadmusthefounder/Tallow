@@ -152,5 +152,8 @@ def encode_frequency(frequency_map, categorical_or_mvc_data):
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'encode_frequency', 'End'))
     return result
 
+def is_large_dataset(data_size, dataset_size_threshold):
+    return data_size > dataset_size_threshold
+
 def has_sufficient_time(dataset_budget_threshold, info):
     return info['dataset_time_spent'] < info['time_budget'] * dataset_budget_threshold
