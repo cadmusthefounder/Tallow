@@ -282,6 +282,8 @@ class OriginalEnsemble:
         print('self._validation_labels.shape: {}'.format(self._validation_labels.shape))
 
         weights = self._correct_covariate_shift(train_data, test_data)
+        print('weights.shape: {}'.format(weights.shape))
+
         train_pool = Pool(train_data, self._train_labels)
         validation_pool = Pool(validation_data, self._validation_labels) if self._use_validation else None
         validation_set = (validation_data, self._validation_labels) if self._use_validation else None
