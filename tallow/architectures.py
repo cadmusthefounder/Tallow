@@ -126,7 +126,6 @@ class Original:
         print('self._validation_labels.shape: {}'.format(self._validation_labels.shape))
 
         weights = self._correct_covariate_shift(train_data, test_data)
-        print('weights.shape: {}'.format(weights.shape))
         
         train_pool = Pool(train_data, self._train_labels)
         validation_pool = Pool(validation_data, self._validation_labels) if self._use_validation else None
@@ -189,7 +188,6 @@ class Original:
         XZ = XZ.drop('is_z', axis=1).values
         X, Z = X.values, Z.values
 
-        # clf = RandomForestClassifier(max_depth=2)
         clf = LogisticRegression()
         predictions = np.zeros(labels.shape)
         skf = StratifiedKFold(n_splits=20, shuffle=True, random_state=self._random_state)
@@ -202,10 +200,15 @@ class Original:
             probs = clf.predict_proba(X_test)[:, 1]
             predictions[test_idx] = probs
 
-        print('ROC-AUC for X and Z distributions: {}'.format(roc_auc_score(labels, predictions)))
+        score = roc_auc_score(labels, predictions)
+        print('ROC-AUC for X and Z distributions: {}'.format(score))
+
+        if score <= 0.6:
+            return None
         predictions_Z = predictions[len(X):]
         weights = (1./predictions_Z) - 1. 
         weights /= np.mean(weights) # we do this to re-normalize the computed log-loss
+        print('weights.shape: {}'.format(weights.shape))
         return weights
 
 class OriginalEnsemble:
@@ -315,7 +318,6 @@ class OriginalEnsemble:
         print('self._validation_labels.shape: {}'.format(self._validation_labels.shape))
 
         weights = self._correct_covariate_shift(train_data, test_data)
-        print('weights.shape: {}'.format(weights.shape))
 
         train_pool = Pool(train_data, self._train_labels)
         validation_pool = Pool(validation_data, self._validation_labels) if self._use_validation else None
@@ -398,7 +400,7 @@ class OriginalEnsemble:
         XZ = XZ.drop('is_z', axis=1).values
         X, Z = X.values, Z.values
 
-        clf = RandomForestClassifier(max_depth=2)
+        clf = LogisticRegression()
         predictions = np.zeros(labels.shape)
         skf = StratifiedKFold(n_splits=20, shuffle=True, random_state=self._random_state)
         for fold, (train_idx, test_idx) in enumerate(skf.split(XZ, labels)):
@@ -410,8 +412,14 @@ class OriginalEnsemble:
             probs = clf.predict_proba(X_test)[:, 1]
             predictions[test_idx] = probs
 
-        print('ROC-AUC for X and Z distributions: {}'.format(roc_auc_score(labels, predictions)))
+        score = roc_auc_score(labels, predictions)
+        print('ROC-AUC for X and Z distributions: {}'.format(score))
+
+        if score <= 0.6:
+            return None
+
         predictions_Z = predictions[len(X):]
         weights = (1./predictions_Z) - 1. 
         weights /= np.mean(weights) # we do this to re-normalize the computed log-loss
+        print('weights.shape: {}'.format(weights.shape))
         return weights
