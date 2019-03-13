@@ -49,6 +49,7 @@ class Original:
         self._train_data = np.array([])
         self._train_labels = np.array([])
 
+        self._classifier = None
         self._under_sampler = RandomUnderSampler(self._random_state)
         self._sampler = None
         self._profile = Profile.LGBM_ORIGINAL_NAME
@@ -129,13 +130,13 @@ class Original:
             self._best_hyperparameters = tuner.get_best_hyperparameters(train_pool, validation_pool)
             print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))
 
-        if has_sufficient_time(self._dataset_budget_threshold, self._info):
-            classifier = classification_class(**self._best_hyperparameters)
+        if has_sufficient_time(self._dataset_budget_threshold, self._info) or self._classifier is None:
+            self._classifier = classification_class(**self._best_hyperparameters)
             
             if isinstance(classifier, LGBMClassifier):                
-                classifier.fit(train_data, self._train_labels, eval_set=validation_set)
+                self._classifier.fit(train_data, self._train_labels, eval_set=validation_set)
             else:
-                classifier.fit(train_pool, eval_set=validation_pool)
+                self._classifier.fit(train_pool, eval_set=validation_pool)
 
             # if len(self._classifiers) > 1:
             #     probabilities = np.zeros(validation_pool.num_row())
