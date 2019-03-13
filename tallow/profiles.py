@@ -31,7 +31,7 @@ class Profile:
             'feature_fraction': hp.loguniform('feature_fraction', np.log(0.6), np.log(0.9)), 
             'bagging_fraction': hp.loguniform('bagging_fraction', np.log(0.6), np.log(0.9)), 
             'bagging_freq': scope.int(hp.quniform('bagging_freq', 2, 10, 1)), 
-            'min_data_in_leaf': scope.int(hp.quniform('bagging_freq', 20, 200, 20)),
+            'min_data_in_leaf': scope.int(hp.quniform('min_data_in_leaf', 20, 200, 20)),
             'boosting_type': 'gbdt', 
             'objective': 'binary',
             'metric': 'auc'
