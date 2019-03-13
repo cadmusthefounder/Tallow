@@ -74,7 +74,7 @@ class Original:
 
         max_data = self._large_dataset_max_data if is_large_dataset(len(data), self._dataset_size_threshold) else self._small_dataset_max_data
         validation_ratio = self._large_dataset_validation_ratio if is_large_dataset(len(data), self._dataset_size_threshold) else self._small_dataset_validation_ratio
-        self._sampler = RandomSampler(max_data) if self._sampler is None
+        self._sampler = RandomSampler(max_data) if self._sampler is None else self._sampler
 
         train_data, self._validation_data, train_labels, self._validation_labels = train_test_split(
             data,
