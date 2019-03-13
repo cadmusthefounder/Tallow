@@ -378,7 +378,7 @@ class OriginalEnsemble:
             probs = clf.predict_proba(X_test)[:, 1]
             predictions[test_idx] = probs
 
-        print('ROC-AUC for X and Z distributions: {}'.format(roc_auc_score(labels, predictions))
+        print('ROC-AUC for X and Z distributions: {}'.format(roc_auc_score(labels, predictions)))
         predictions_Z = predictions[len(X):]
         weights = (1./predictions_Z) - 1. 
         weights /= np.mean(weights) # we do this to re-normalize the computed log-loss
