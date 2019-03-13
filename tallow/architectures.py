@@ -209,7 +209,7 @@ class OriginalEnsemble:
         self._profile = Profile.LGBM_ORIGINAL_NAME
 
     def fit(self, F, y, datainfo, timeinfo):
-        print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'Original', 'fit', 'Start'))
+        print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'OriginalEnsemble', 'fit', 'Start'))
 
         info = extract(datainfo, timeinfo)
         self._info.update(info)
@@ -251,10 +251,10 @@ class OriginalEnsemble:
         print('self._train_data.shape: {}'.format(self._train_data.shape))
         print('self._train_labels.shape: {}'.format(self._train_labels.shape))
 
-        print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'Original', 'fit', 'End'))
+        print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'OriginalEnsemble', 'fit', 'End'))
         
     def predict(self, F, datainfo, timeinfo):
-        print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'Original', 'predict', 'Start'))
+        print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'OriginalEnsemble', 'predict', 'Start'))
     
         info = extract(datainfo, timeinfo)
         self._info.update(info)
@@ -307,7 +307,7 @@ class OriginalEnsemble:
             print('Time budget exceeded.')
 
         if len(self._classifiers) == 1:
-            probabilities = self._classifier.predict_proba(test_data)[:,1]
+            probabilities = self._classifiers[0].predict_proba(test_data)[:,1]
         else:
             for i in range(len(self._classifiers)):
                 if i == 0:
@@ -317,7 +317,7 @@ class OriginalEnsemble:
             probabilities = np.transpose(probabilities)
             probabilities = self._lr.predict_proba(probabilities)[:,1]
         print('probabilities.shape: {}'.format(probabilities.shape))
-        print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'Original', 'predict', 'End'))
+        print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'OriginalEnsemble', 'predict', 'End'))
         
         self._iteration += 1
         return probabilities
