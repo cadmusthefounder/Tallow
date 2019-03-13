@@ -50,7 +50,7 @@ class Original:
         self._train_labels = np.array([])
 
         self._classifier = None
-        self._under_sampler = RandomUnderSampler(self._random_state)
+        self._under_sampler = RandomOverSampler(self._random_state)
         self._sampler = None
         self._profile = Profile.LGBM_ORIGINAL_NAME
 
