@@ -1,5 +1,6 @@
+import numpy as np
 from copy import deepcopy
-from catboost import CatBoostClassifier, Pool
+from catboost import CatBoostClassifier
 from lightgbm import LGBMClassifier
 from hyperopt import hp
 from hyperopt.pyll.base import scope
