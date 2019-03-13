@@ -23,14 +23,17 @@ class HyperparametersTuner:
         if isinstance(classifier, LGBMClassifier):
             training_data = np.array(self._train_pool.get_features())
             training_labels = np.array(self._train_pool.get_label())
-            validation_data = np.array(self._validation_pool.get_features())
-            validation_labels = np.array(self._validation_pool.get_label())
-            validation_set = (validation_data, validation_labels)
+            if self._validation_pool is not None:
+                validation_data = np.array(self._validation_pool.get_features())
+                validation_labels = np.array(self._validation_pool.get_label())
+                validation_set = (validation_data, validation_labels)
+            else:
+                validation_set = None
             
-            classifier.fit(training_data, training_labels, eval_set=validation_set)
+            classifier.fit(training_data, training_labels)
             predictions = classifier.predict(self._validation_pool.get_features())
         else:
-            classifier.fit(self._train_pool, eval_set=self._validation_pool)
+            classifier.fit(self._train_pool)
             predictions = classifier.predict(self._validation_pool)
 
         labels = np.array(self._validation_pool.get_label())
@@ -71,14 +74,17 @@ class HyperparametersTuner:
         if isinstance(classifier, LGBMClassifier):
             training_data = np.array(self._train_pool.get_features())
             training_labels = np.array(self._train_pool.get_label())
-            validation_data = np.array(self._validation_pool.get_features())
-            validation_labels = np.array(self._validation_pool.get_label())
-            validation_set = (validation_data, validation_labels)
+            if self._validation_pool is not None:
+                validation_data = np.array(self._validation_pool.get_features())
+                validation_labels = np.array(self._validation_pool.get_label())
+                validation_set = (validation_data, validation_labels)
+            else:
+                validation_set = None
             
-            classifier.fit(training_data, training_labels, eval_set=validation_set)
+            classifier.fit(training_data, training_labels)
             predictions = classifier.predict(self._validation_pool.get_features())
         else:
-            classifier.fit(self._train_pool, eval_set=self._validation_pool)
+            classifier.fit(self._train_pool)
             predictions = classifier.predict(self._validation_pool)
 
         labels = np.array(self._validation_pool.get_label())

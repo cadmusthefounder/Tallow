@@ -29,7 +29,7 @@ class Original:
         self._use_validation = True
         self._large_dataset_validation_ratio = 0 if not self._use_validation else 0.1
         self._small_dataset_validation_ratio = 0 if not self._use_validation else 0.25
-        self._early_stopping_rounds = 0 if not self._use_validation else 30
+        self._early_stopping_rounds = 0 if not self._use_validation else 0
 
         self._dataset_size_threshold = 400000
         self._large_dataset_max_data = 300000
@@ -122,8 +122,8 @@ class Original:
         print('self._validation_labels.shape: {}'.format(self._validation_labels.shape))
         
         train_pool = Pool(train_data, self._train_labels)
-        validation_pool = Pool(validation_data, self._validation_labels)
-        validation_set = (validation_data, self._validation_labels)
+        validation_pool = Pool(validation_data, self._validation_labels) if self._use_validation else None
+        validation_set = (validation_data, self._validation_labels) if self._use_validation else None
         
         if self._best_hyperparameters is None:
             tuner = HyperparametersTuner(classification_class, fixed_hyperparameters, search_space, self._max_evaluations)
@@ -134,9 +134,9 @@ class Original:
             self._classifier = classification_class(**self._best_hyperparameters)
             
             if isinstance(self._classifier, LGBMClassifier):                
-                self._classifier.fit(train_data, self._train_labels, eval_set=validation_set)
+                self._classifier.fit(train_data, self._train_labels)
             else:
-                self._classifier.fit(train_pool, eval_set=validation_pool)
+                self._classifier.fit(train_pool)
 
             # if len(self._classifiers) > 1:
             #     probabilities = np.zeros(validation_pool.num_row())
