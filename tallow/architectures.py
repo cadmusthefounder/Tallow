@@ -129,7 +129,7 @@ class Original:
             print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))
 
         if has_sufficient_time(self._dataset_budget_threshold, self._info):
-            classifier = self._classifier_class(**self._best_hyperparameters)
+            classifier = classifier_class(**self._best_hyperparameters)
             
             if isinstance(classifier, LGBMClassifier):                
                 classifier.fit(training_data, training_labels, eval_set=validation_set)
