@@ -1,3 +1,4 @@
+from math import pow
 from utils import *
 pip_install('catboost')
 pip_install('lightgbm')
@@ -11,7 +12,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
-from samplers import RandomOverSampler, RandomUnderSampler, RandomSampler
+from samplers import RandomOverSampler, RandomUnderSampler, RandomSampler, BiasedReservoirSampler
 
 class DataType:
     TRAIN = 'TRAIN'
@@ -206,6 +207,7 @@ class OriginalEnsemble:
         self._classifiers = []
         self._under_sampler = RandomUnderSampler(self._random_state)
         self._sampler = None
+        self._bias_rate = pow(10, -6)
         self._profile = Profile.LGBM_ORIGINAL_NAME
 
     def fit(self, F, y, datainfo, timeinfo):
@@ -226,7 +228,8 @@ class OriginalEnsemble:
 
         max_data = self._large_dataset_max_data if is_large_dataset(len(data), self._dataset_size_threshold) else self._small_dataset_max_data
         validation_ratio = self._large_dataset_validation_ratio if is_large_dataset(len(data), self._dataset_size_threshold) else self._small_dataset_validation_ratio
-        self._sampler = RandomSampler(max_data) if self._sampler is None else self._sampler
+        # self._sampler = RandomSampler(max_data) if self._sampler is None else self._sampler
+        self._sampler = BiasedReservoirSampler(max_data, self._bias_rate) if self._sampler is None else self._sampler
 
         train_data, self._validation_data, train_labels, self._validation_labels = train_test_split(
             data,
@@ -245,10 +248,10 @@ class OriginalEnsemble:
         print('train_data.shape: {}'.format(train_data.shape))
         print('train_labels.shape: {}'.format(train_labels.shape))
 
-        # self._train_data = train_data if len(self._train_data) == 0 else np.concatenate((self._train_data, train_data), axis=0)
-        # self._train_labels = train_labels if len(self._train_labels) == 0 else np.concatenate((self._train_labels, train_labels), axis=0)
-        # self._train_data, self._train_labels = self._sampler.sample(self._train_data, self._train_labels)
-        self._train_data, self._train_labels = self._sampler.sample(train_data, train_labels)
+        self._train_data = train_data if len(self._train_data) == 0 else np.concatenate((self._train_data, train_data), axis=0)
+        self._train_labels = train_labels if len(self._train_labels) == 0 else np.concatenate((self._train_labels, train_labels), axis=0)
+        self._train_data, self._train_labels = self._sampler.sample(self._train_data, self._train_labels)
+        # self._train_data, self._train_labels = self._sampler.sample(train_data, train_labels)
         print('self._train_data.shape: {}'.format(self._train_data.shape))
         print('self._train_labels.shape: {}'.format(self._train_labels.shape))
 
