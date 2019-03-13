@@ -133,7 +133,7 @@ class Original:
         if has_sufficient_time(self._dataset_budget_threshold, self._info) or self._classifier is None:
             self._classifier = classification_class(**self._best_hyperparameters)
             
-            if isinstance(classifier, LGBMClassifier):                
+            if isinstance(self._classifier, LGBMClassifier):                
                 self._classifier.fit(train_data, self._train_labels, eval_set=validation_set)
             else:
                 self._classifier.fit(train_pool, eval_set=validation_pool)
