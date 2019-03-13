@@ -71,7 +71,7 @@ class Profile:
 
     @staticmethod
     def parse_profile(profile_name, early_stopping_rounds):
-        profile = NAME_PROFILE_MAP[profile_name]
+        profile = Profile.NAME_PROFILE_MAP[profile_name]
         if early_stopping_rounds == 0:
             return profile['class'], profile['fixed_hyperparameters'], profile['search_space']
         else:
