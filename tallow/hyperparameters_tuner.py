@@ -24,6 +24,7 @@ class HyperparametersTuner:
             training_data = np.array(self._train_pool.get_features())
             training_labels = np.array(self._train_pool.get_label())
             validation_data = np.array(self._validation_pool.get_features())
+            validation_labels = np.array(self._validation_pool.get_label())
             validation_set = np.array(list(zip(validation_data, validation_labels)))
             
             classifier.fit(training_data, training_labels, eval_set=validation_set)
