@@ -124,6 +124,9 @@ class Original:
         print('self._train_labels.shape: {}'.format(self._train_labels.shape))
         print('validation_data.shape: {}'.format(validation_data.shape))
         print('self._validation_labels.shape: {}'.format(self._validation_labels.shape))
+
+        weights = self._correct_covariate_shift(train_data, test_data)
+        print('weights.shape: {}'.format(weights.shape))
         
         train_pool = Pool(train_data, self._train_labels)
         validation_pool = Pool(validation_data, self._validation_labels) if self._use_validation else None
@@ -131,14 +134,14 @@ class Original:
         
         if self._best_hyperparameters is None:
             tuner = HyperparametersTuner(classification_class, fixed_hyperparameters, search_space, self._max_evaluations)
-            self._best_hyperparameters = tuner.get_best_hyperparameters(train_pool, validation_pool)
+            self._best_hyperparameters = tuner.get_best_hyperparameters(train_pool, validation_pool, weights)
             print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))
 
         if has_sufficient_time(self._dataset_budget_threshold, self._info) or self._classifier is None:
             self._classifier = classification_class(**self._best_hyperparameters)
             
             if isinstance(self._classifier, LGBMClassifier):                
-                self._classifier.fit(train_data, self._train_labels)
+                self._classifier.fit(train_data, self._train_labels, sample_weight=weights)
             else:
                 self._classifier.fit(train_pool)
 
