@@ -279,10 +279,10 @@ class OriginalEnsemble:
         print('train_data.shape: {}'.format(train_data.shape))
         print('train_labels.shape: {}'.format(train_labels.shape))
 
-        # self._train_data = train_data if len(self._train_data) == 0 else np.concatenate((self._train_data, train_data), axis=0)
-        # self._train_labels = train_labels if len(self._train_labels) == 0 else np.concatenate((self._train_labels, train_labels), axis=0)
-        # self._train_data, self._train_labels = self._sampler.sample(self._train_data, self._train_labels)
-        self._train_data, self._train_labels = self._sampler.sample(train_data, train_labels)
+        self._train_data = train_data if len(self._train_data) == 0 else np.concatenate((self._train_data, train_data), axis=0)
+        self._train_labels = train_labels if len(self._train_labels) == 0 else np.concatenate((self._train_labels, train_labels), axis=0)
+        self._train_data, self._train_labels = self._sampler.sample(self._train_data, self._train_labels)
+        # self._train_data, self._train_labels = self._sampler.sample(train_data, train_labels)
         print('self._train_data.shape: {}'.format(self._train_data.shape))
         print('self._train_labels.shape: {}'.format(self._train_labels.shape))
 
@@ -319,7 +319,7 @@ class OriginalEnsemble:
         
         if self._best_hyperparameters is None:
             tuner = HyperparametersTuner(classification_class, fixed_hyperparameters, search_space, self._max_evaluations)
-            self._best_hyperparameters = tuner.get_best_hyperparameters(train_pool, validation_pool)
+            self._best_hyperparameters = tuner.get_best_hyperparameters(train_pool, validation_pool, weights)
             print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))
 
         if has_sufficient_time(self._dataset_budget_threshold, self._info) or len(self._classifiers) == 0:
