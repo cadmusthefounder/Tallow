@@ -12,10 +12,11 @@ class HyperparametersTuner:
         self._search_space = search_space
         self._max_evaluations = max_evaluations
 
-    def get_best_hyperparameters(self, train_pool, validation_pool=None):
+    def get_best_hyperparameters(self, train_pool, validation_pool=None, sample_weight=None):
         print('\nFile: {} Class: {} Function: {} State: {}'.format('hyperparameters_tuner.py', 'HyperparametersTuner', 'get_best_hyperparameters', 'Start'))
         self._train_pool = train_pool
         self._validation_pool = validation_pool
+        self._sample_weight = sample_weight
 
         # Try fixed hyperparameters
         classifier = self._classifier_class()
@@ -30,7 +31,7 @@ class HyperparametersTuner:
             else:
                 validation_set = None
             
-            classifier.fit(training_data, training_labels)
+            classifier.fit(training_data, training_labels, sample_weight=self._sample_weight)
             predictions = classifier.predict(self._validation_pool.get_features())
         else:
             classifier.fit(self._train_pool)
@@ -81,7 +82,7 @@ class HyperparametersTuner:
             else:
                 validation_set = None
             
-            classifier.fit(training_data, training_labels)
+            classifier.fit(training_data, training_labels, sample_weight=self._sample_weight)
             predictions = classifier.predict(self._validation_pool.get_features())
         else:
             classifier.fit(self._train_pool)
