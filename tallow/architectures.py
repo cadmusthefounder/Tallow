@@ -370,7 +370,7 @@ class OriginalEnsemble:
         predictions = np.zeros(labels.shape)
         skf = StratifiedKFold(n_splits=20, shuffle=True, random_state=self._random_state)
         for fold, (train_idx, test_idx) in enumerate(skf.split(XZ, labels)):
-            print 'Training discriminator model for fold {}'.format(fold)
+            print('Training discriminator model for fold {}'.format(fold))
             X_train, X_test = XZ[train_idx], XZ[test_idx]
             y_train, y_test = labels[train_idx], labels[test_idx]
                 
@@ -378,7 +378,7 @@ class OriginalEnsemble:
             probs = clf.predict_proba(X_test)[:, 1]
             predictions[test_idx] = probs
 
-        print 'ROC-AUC for X and Z distributions:', AUC(labels, predictions)
+        print('ROC-AUC for X and Z distributions: {}'.format(roc_auc_score(labels, predictions))
         predictions_Z = predictions[len(X):]
         weights = (1./predictions_Z) - 1. 
         weights /= np.mean(weights) # we do this to re-normalize the computed log-loss
