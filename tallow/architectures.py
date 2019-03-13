@@ -355,11 +355,8 @@ class OriginalEnsemble:
         return transformed_data
 
     def _correct_covariate_shift(self, train_data, test_data):
-        # Z = np.c_[train_data, train_labels]
-        # X = np.c_[test_data, test_labels]
-
-        X = pd.DataFrame(train_data)
-        Z = pd.DataFrame(test_data)
+        X = pd.DataFrame(test_data)
+        Z = pd.DataFrame(train_data)
         X['is_z'] = 0 # 0 means test set
         Z['is_z'] = 1 # 1 means training set
         XZ = pd.concat( [X, Z], ignore_index=True, axis=0 )
