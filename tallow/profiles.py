@@ -9,11 +9,6 @@ class Profile:
     LGBM_ORIGINAL_NAME = 'LGBM_ORIGINAL'
     CATBOOST_ORIGINAL_NAME = 'CATBOOST_ORIGINAL'
 
-    NAME_PROFILE_MAP = {
-        LGBM_ORIGINAL_NAME: LGBM_ORIGINAL,
-        CATBOOST_ORIGINAL_NAME: CATBOOST_ORIGINAL
-    }
-
     LGBM_ORIGINAL = {
         'class': LGBMClassifier,
         'fixed_hyperparameters': {
@@ -66,6 +61,11 @@ class Profile:
             'verbose': False,
             'random_state': 42
         }
+    }
+
+    NAME_PROFILE_MAP = {
+        LGBM_ORIGINAL_NAME: LGBM_ORIGINAL,
+        CATBOOST_ORIGINAL_NAME: CATBOOST_ORIGINAL
     }
 
     @staticmethod
