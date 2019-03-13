@@ -136,7 +136,7 @@ class Original:
             classifier = self._classifier_class(**self._best_hyperparameters)
             
             if isinstance(classifier, LGBMClassifier):                
-                classifier.fit(train_data, self._train_labels, eval_set=list(zip(validation_data, self._validation_labels))
+                classifier.fit(train_data, self._train_labels, eval_set=list(zip(validation_data, self._validation_labels)))
             else:
                 classifier.fit(train_pool, eval_set=validation_pool)
 

@@ -26,7 +26,7 @@ class HyperparametersTuner:
             validation_data = np.array(self._validation_pool.get_features())
             validation_labels = np.array(self._validation_pool.get_label())
             
-            classifier.fit(training_data, training_labels, eval_set=list(zip(validation_data, validation_labels))
+            classifier.fit(training_data, training_labels, eval_set=list(zip(validation_data, validation_labels)))
             predictions = classifier.predict(self._validation_pool.get_features())
         else:
             classifier.fit(self._train_pool, eval_set=self._validation_pool)
@@ -73,7 +73,7 @@ class HyperparametersTuner:
             validation_data = np.array(self._validation_pool.get_features())
             validation_labels = np.array(self._validation_pool.get_label())
             
-            classifier.fit(training_data, training_labels, eval_set=list(zip(validation_data, validation_labels))
+            classifier.fit(training_data, training_labels, eval_set=list(zip(validation_data, validation_labels)))
             predictions = classifier.predict(self._validation_pool.get_features())
         else:
             classifier.fit(self._train_pool, eval_set=self._validation_pool)
