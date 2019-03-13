@@ -140,7 +140,7 @@ def extract_detailed_time(time_data):
     print('time_data.shape: {}'.format((no_of_rows, no_of_cols)))
     result = np.array([])
     for i in range(no_of_cols):
-        dates = pd.DatetimeIndex(X[:,i])
+        dates = pd.DatetimeIndex(time_data[:,i])
         dayofweek = dates.dayofweek.values.reshape((-1, 1))
         dayofyear = dates.dayofyear.values.reshape((-1, 1))
         month = dates.month.values.reshape((-1, 1))

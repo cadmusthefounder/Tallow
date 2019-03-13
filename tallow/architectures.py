@@ -37,7 +37,7 @@ class Original:
 
         self._iteration = 0
         self._random_state = 13
-        self._max_evaluations = 2
+        self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
 
         self._category_indices = None
