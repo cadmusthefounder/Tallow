@@ -12,10 +12,6 @@ from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
 from samplers import RandomOverSampler, RandomUnderSampler, RandomSampler
 
-ARCHITECTURE_MAPPING = {
-    Original.NAME: Original
-}
-
 class DataType:
     TRAIN = 'TRAIN'
     VALIDATION = 'VALIDATION'

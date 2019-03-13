@@ -2,7 +2,11 @@ import pickle
 import os
 from os.path import isfile
 
-from architectures import ARCHITECTURE_MAPPING, Original
+from architectures import Original
+
+ARCHITECTURE_MAPPING = {
+    Original.NAME: Original
+}
 
 class Model:
 
