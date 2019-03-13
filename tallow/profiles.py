@@ -24,7 +24,7 @@ class Profile:
             'metric': 'auc'
         },
         'search_space': {
-            'learning_rate': hp.loguniform('feature_fraction', np.log(0.001), np.log(0.01)),
+            'learning_rate': hp.loguniform('learning_rate', np.log(0.001), np.log(0.01)),
             'n_estimators': scope.int(hp.quniform('n_estimators', 500, 800, 50)), 
             'num_leaves': scope.int(hp.quniform('num_leaves', 10, 80, 5)), 
             'feature_fraction': hp.loguniform('feature_fraction', np.log(0.6), np.log(0.9)), 
