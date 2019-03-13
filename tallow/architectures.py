@@ -13,6 +13,7 @@ from sklearn.linear_model import LogisticRegression
 from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
 from samplers import RandomOverSampler, RandomUnderSampler, RandomSampler, BiasedReservoirSampler
+from pykliep import DensityRatioEstimator
 
 class DataType:
     TRAIN = 'TRAIN'
@@ -290,9 +291,12 @@ class OriginalEnsemble:
 
         if has_sufficient_time(self._dataset_budget_threshold, self._info) or len(self._classifiers) == 0:
             classifier = classification_class(**self._best_hyperparameters)
+            kliep = DensityRatioEstimator(random_state=self._random_state)
+            kliep.fit(train_data, test_data)
+            weights = kliep.predict(train_data)
             
             if isinstance(classifier, LGBMClassifier):                
-                classifier.fit(train_data, self._train_labels)
+                classifier.fit(train_data, self._train_labels, sample_weight=weights)
             else:
                 classifier.fit(train_pool)
 
