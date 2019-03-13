@@ -121,6 +121,7 @@ class Original:
         
         train_pool = Pool(train_data, self._train_labels)
         validation_pool = Pool(validation_data, self._validation_labels)
+        validation_set = np.array(list(zip(validation_data, self._validation_labels)))
         
         if self._best_hyperparameters is None:
             tuner = HyperparametersTuner(classification_class, fixed_hyperparameters, search_space, self._max_evaluations)
@@ -131,7 +132,7 @@ class Original:
             classifier = self._classifier_class(**self._best_hyperparameters)
             
             if isinstance(classifier, LGBMClassifier):                
-                classifier.fit(train_data, self._train_labels, eval_set=list(zip(validation_data, self._validation_labels)))
+                classifier.fit(training_data, training_labels, eval_set=validation_set)
             else:
                 classifier.fit(train_pool, eval_set=validation_pool)
 
