@@ -123,7 +123,7 @@ class Original:
         validation_pool = Pool(validation_data, self._validation_labels)
         
         if self._best_hyperparameters is None:
-            tuner = HyperparametersTuner(self._classifier_class, self._fixed_hyperparameters, self._search_space, self._max_evaluations)
+            tuner = HyperparametersTuner(classification_class, fixed_hyperparameters, search_space, self._max_evaluations)
             self._best_hyperparameters = tuner.get_best_hyperparameters(train_pool, validation_pool)
             print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))
 
