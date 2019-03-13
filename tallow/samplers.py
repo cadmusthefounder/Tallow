@@ -81,6 +81,7 @@ class RandomUnderSampler:
         return dict(zip(unique, counts))
 
     def _sampling_strategy_not_minority(self, y):
+        print(y)
         target_stats = self._count_class_sample(y)
         print(target_stats)
         n_sample_minority = min(target_stats.values())
