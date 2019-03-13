@@ -189,7 +189,8 @@ class Original:
         XZ = XZ.drop('is_z', axis=1).values
         X, Z = X.values, Z.values
 
-        clf = RandomForestClassifier(max_depth=2)
+        # clf = RandomForestClassifier(max_depth=2)
+        clf = LogisticRegression()
         predictions = np.zeros(labels.shape)
         skf = StratifiedKFold(n_splits=20, shuffle=True, random_state=self._random_state)
         for fold, (train_idx, test_idx) in enumerate(skf.split(XZ, labels)):
