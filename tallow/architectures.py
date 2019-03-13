@@ -164,6 +164,7 @@ class Original:
         if len(time_data) > 0:
             transformed_data = subtract_min_time(time_data)
             transformed_data = np.concatenate((transformed_data, difference_between_time_columns(time_data)), axis=1)
+            transformed_data = np.concatenate((transformed_data, extract_detailed_time(time_data)), axis=1)
         if len(numerical_data) > 0:
             transformed_data = numerical_data if len(transformed_data) == 0 else \
                                 np.concatenate((transformed_data, numerical_data), axis=1)

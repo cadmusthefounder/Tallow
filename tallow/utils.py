@@ -134,6 +134,34 @@ def difference_between_time_columns(time_data):
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'difference_between_time_columns', 'End'))
     return result
 
+def extract_detailed_time(time_data):
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'extract_detailed_time', 'Start'))
+    no_of_rows, no_of_cols = time_data.shape
+    print('time_data.shape: {}'.format((no_of_rows, no_of_cols)))
+    result = np.array([])
+    for i in range(no_of_cols):
+        dates = pd.DatetimeIndex(X[:,i])
+        dayofweek = dates.dayofweek.values.reshape((-1, 1))
+        dayofyear = dates.dayofyear.values.reshape((-1, 1))
+        month = dates.month.values.reshape((-1, 1))
+        weekofyear = dates.weekofyear.values.reshape((-1, 1))
+        day = dates.day.values.reshape((-1, 1))
+        hour = dates.hour.values.reshape((-1, 1))
+        minute = dates.minute.values.reshape((-1, 1))
+        year = dates.year.values.reshape((-1, 1))
+
+        result = dayofweek if len(result) == 0 else np.concatenate((result, dayofweek), axis=1)
+        result = dayofyear if len(result) == 0 else np.concatenate((result, dayofyear), axis=1)
+        result = month if len(result) == 0 else np.concatenate((result, month), axis=1)
+        result = day if len(result) == 0 else np.concatenate((result, day), axis=1)
+        result = hour if len(result) == 0 else np.concatenate((result, hour), axis=1)
+        result = minute if len(result) == 0 else np.concatenate((result, minute), axis=1)
+        result = year if len(result) == 0 else np.concatenate((result, year), axis=1)
+
+    print('result.shape: {}'.format(result.shape)) 
+    print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'extract_detailed_time', 'End'))
+    return result
+
 def count_frequency(frequency_map, categorical_or_mvc_data):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'count_frequency', 'Start'))
     for i in range(categorical_or_mvc_data.shape[1]):

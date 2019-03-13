@@ -19,6 +19,7 @@ class Profile:
             'feature_fraction': 0.6, 
             'bagging_fraction': 0.6, 
             'bagging_freq': 2, 
+            'min_data_in_leaf': 20,
             'boosting_type': 'gbdt', 
             'objective': 'binary', 
             'metric': 'auc'
@@ -30,6 +31,7 @@ class Profile:
             'feature_fraction': hp.loguniform('feature_fraction', np.log(0.6), np.log(0.9)), 
             'bagging_fraction': hp.loguniform('bagging_fraction', np.log(0.6), np.log(0.9)), 
             'bagging_freq': scope.int(hp.quniform('bagging_freq', 2, 10, 1)), 
+            'min_data_in_leaf': scope.int(hp.quniform('bagging_freq', 20, 200, 20)),
             'boosting_type': 'gbdt', 
             'objective': 'binary',
             'metric': 'auc'
@@ -48,7 +50,7 @@ class Profile:
             'boosting_type': 'Plain',
             'max_ctr_complexity': 2,
             'verbose': True,
-            'random_state': 42
+            'random_state': 13
         },
         'search_space': {
             'loss_function': 'Logloss',
@@ -60,7 +62,7 @@ class Profile:
             'boosting_type': 'Plain',
             'max_ctr_complexity': 2,
             'verbose': False,
-            'random_state': 42
+            'random_state': 13
         }
     }
 
