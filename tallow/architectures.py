@@ -29,7 +29,7 @@ class Original:
         self._use_validation = True
         self._large_dataset_validation_ratio = 0 if not self._use_validation else 0.1
         self._small_dataset_validation_ratio = 0 if not self._use_validation else 0.25
-        self._early_stopping_rounds = 0 if not self._use_validation else 50
+        self._early_stopping_rounds = 0 if not self._use_validation else 30
 
         self._dataset_size_threshold = 400000
         self._large_dataset_max_data = 300000
