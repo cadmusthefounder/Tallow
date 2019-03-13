@@ -5,7 +5,8 @@ pip_install('hyperopt')
 
 import numpy as np
 from math import pow
-from catboost import Pool
+from catboost import CatBoostClassifier, Pool
+from lightgbm import LGBMClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from hyperparameters_tuner import HyperparametersTuner
