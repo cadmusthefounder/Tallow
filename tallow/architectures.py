@@ -175,6 +175,35 @@ class Original:
             transformed_data = np.concatenate((transformed_data, encoded_mvc_data), axis=1)
         return transformed_data
 
+    def _correct_covariate_shift(self, train_data, test_data):
+        X = pd.DataFrame(test_data)
+        Z = pd.DataFrame(train_data)
+        X['is_z'] = 0 # 0 means test set
+        Z['is_z'] = 1 # 1 means training set
+        XZ = pd.concat( [X, Z], ignore_index=True, axis=0 )
+
+        labels = XZ['is_z'].values
+        XZ = XZ.drop('is_z', axis=1).values
+        X, Z = X.values, Z.values
+
+        clf = RandomForestClassifier(max_depth=2)
+        predictions = np.zeros(labels.shape)
+        skf = StratifiedKFold(n_splits=20, shuffle=True, random_state=self._random_state)
+        for fold, (train_idx, test_idx) in enumerate(skf.split(XZ, labels)):
+            print('Training discriminator model for fold {}'.format(fold))
+            X_train, X_test = XZ[train_idx], XZ[test_idx]
+            y_train, y_test = labels[train_idx], labels[test_idx]
+                
+            clf.fit(X_train, y_train)
+            probs = clf.predict_proba(X_test)[:, 1]
+            predictions[test_idx] = probs
+
+        print('ROC-AUC for X and Z distributions: {}'.format(roc_auc_score(labels, predictions)))
+        predictions_Z = predictions[len(X):]
+        weights = (1./predictions_Z) - 1. 
+        weights /= np.mean(weights) # we do this to re-normalize the computed log-loss
+        return weights
+
 class OriginalEnsemble:
     NAME = 'OriginalEnsemble'
 
@@ -290,7 +319,7 @@ class OriginalEnsemble:
         
         if self._best_hyperparameters is None:
             tuner = HyperparametersTuner(classification_class, fixed_hyperparameters, search_space, self._max_evaluations)
-            self._best_hyperparameters = tuner.get_best_hyperparameters(train_pool, validation_pool, weights)
+            self._best_hyperparameters = tuner.get_best_hyperparameters(train_pool, validation_pool)
             print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))
 
         if has_sufficient_time(self._dataset_budget_threshold, self._info) or len(self._classifiers) == 0:
