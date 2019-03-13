@@ -133,7 +133,7 @@ class Original:
             classifier = classification_class(**self._best_hyperparameters)
             
             if isinstance(classifier, LGBMClassifier):                
-                classifier.fit(training_data, training_labels, eval_set=validation_set)
+                classifier.fit(train_data, self._train_labels, eval_set=validation_set)
             else:
                 classifier.fit(train_pool, eval_set=validation_pool)
 
