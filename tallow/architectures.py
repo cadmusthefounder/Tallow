@@ -99,7 +99,6 @@ class Original:
         print('self._train_data.shape: {}'.format(self._train_data.shape))
         print('self._train_labels.shape: {}'.format(self._train_labels.shape))
 
-        self._iteration += 1
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'Original', 'fit', 'End'))
         
     def predict(self, F, datainfo, timeinfo):
@@ -156,6 +155,8 @@ class Original:
         probabilities = self._classifier.predict_proba(test_data)[:,1]
         print('probabilities.shape: {}'.format(probabilities.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'Original', 'predict', 'End'))
+        
+        self._iteration += 1
         return probabilities
 
     def _transform(self, data, datatype):
@@ -168,17 +169,12 @@ class Original:
             transformed_data = numerical_data if len(transformed_data) == 0 else \
                                 np.concatenate((transformed_data, numerical_data), axis=1)
         if len(categorical_data) > 0:
-            if datatype == DataType.TRAIN:
-                count_frequency(self._categorical_frequency_map, categorical_data) if self._iteration == 0
-            elif datatype == DataType.TEST:
+            if (datatype == DataType.TRAIN and self._iteration == 0) or datatype == DataType.TEST:
                 count_frequency(self._categorical_frequency_map, categorical_data)
-
             encoded_categorical_data = encode_frequency(self._categorical_frequency_map, categorical_data)
             transformed_data = np.concatenate((transformed_data, encoded_categorical_data), axis=1)
         if len(mvc_data) > 0: 
-            if datatype == DataType.TRAIN:
-                count_frequency(self._mvc_frequency_map, mvc_data) if self._iteration == 0
-            elif datatype == DataType.TEST:
+            if (datatype == DataType.TRAIN and self._iteration == 0) or datatype == DataType.TEST:
                 count_frequency(self._mvc_frequency_map, mvc_data)
             
             encoded_mvc_data = encode_frequency(self._mvc_frequency_map, mvc_data)
