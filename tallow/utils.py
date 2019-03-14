@@ -230,8 +230,8 @@ def correct_covariate_shift(train_data, test_data, random_state, threshold, n_sp
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'correct_covariate_shift', 'End'))
     return weights
 
-def compute_weight(predictions, labels, weights, epsilon):
-    return 1 / (mean_squared_error(predictions, labels, weights) + epsilon)
+def compute_weight(predictions, labels, epsilon):
+    return 1 / (mean_squared_error(predictions, labels) + epsilon)
 
 def compute_q_statistic(classifiers, data, labels):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'compute_q_statistic', 'Start'))
