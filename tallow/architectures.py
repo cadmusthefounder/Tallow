@@ -35,7 +35,7 @@ class OriginalEnsemble:
         self._random_state = 13
         self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
-        self._should_correct = False
+        self._should_correct = True
         self._correction_threshold = 0.75
         self._correction_n_splits = 20
         self._epsilon = 0.001
@@ -134,18 +134,18 @@ class OriginalEnsemble:
                 init_model=None
             )
             new_predictions = new_classifier.predict(validation_data)
-            new_weight = 1 / (mean_squared_error(new_predictions, validation_labels) + self._epsilon)
+            new_weight = 1 / (mean_squared_error(new_predictions, validation_labels, validation_weights) + self._epsilon)
 
             dummy_classifier = DummyClassifier(random_state=self._random_state)
             dummy_classifier.fit(train_data, train_labels, sample_weight=train_weights)
             dummy_predictions = dummy_classifier.predict(validation_data)
-            dummy_weight = 1 / (mean_squared_error(dummy_predictions, validation_labels) + self._epsilon)
+            dummy_weight = 1 / (mean_squared_error(dummy_predictions, validation_labels, validation_weights) + self._epsilon)
 
             self._ensemble_weights = []
             for i in range(len(self._classifiers)):
                 currrent_classifier = self._classifiers[i]
                 currrent_classifier_predictions = currrent_classifier.predict(validation_data)
-                currrent_classifier_weight =  1/ (mean_squared_error(currrent_classifier_predictions, validation_labels) + self._epsilon)
+                currrent_classifier_weight =  1/ (mean_squared_error(currrent_classifier_predictions, validation_labels, validation_weights) + self._epsilon)
                 self._ensemble_weights.append(currrent_classifier_weight)
 
                 if currrent_classifier_weight > dummy_weight:
