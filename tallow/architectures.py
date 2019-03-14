@@ -128,9 +128,9 @@ class OriginalEnsemble:
         if self._best_hyperparameters is None:
             tuner = HyperparametersTuner(fixed_hyperparameters, search_space, self._max_evaluations)
             self._best_hyperparameters = tuner.get_best_hyperparameters(train_dataset, validation_dataset)
-            self._best_hyperparameters_clone = deepcopy(self._best_hyperparameters)
-            self._best_hyperparameters_clone.pop('num_iterations', None)
-            self._best_hyperparameters_clone.pop('early_stopping_round', None)
+            # self._best_hyperparameters_clone = deepcopy(self._best_hyperparameters)
+            # self._best_hyperparameters_clone.pop('num_iterations', None)
+            # self._best_hyperparameters_clone.pop('early_stopping_round', None)
             print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))    
 
         if has_sufficient_time(self._dataset_budget_threshold, self._info) or len(self._classifiers) == 0:
@@ -151,9 +151,16 @@ class OriginalEnsemble:
 
             validation_train_data, validation_train_labels = self._imbalanced_sampler.sample(validation_data, validation_labels)
             validation_train_dataset = lgbm.Dataset(validation_train_data, validation_train_labels, free_raw_data=False)
+            # new_classifier = lgbm.train(
+            #     params=self._best_hyperparameters_clone, 
+            #     train_set=validation_train_dataset, 
+            #     keep_training_booster=True,
+            #     init_model=new_classifier
+            # )
             new_classifier = lgbm.train(
-                params=self._best_hyperparameters_clone, 
+                params=self._best_hyperparameters, 
                 train_set=validation_train_dataset, 
+                valid_sets=[validation_dataset], 
                 keep_training_booster=True,
                 init_model=new_classifier
             )
@@ -188,11 +195,18 @@ class OriginalEnsemble:
                         keep_training_booster=True,
                         init_model=currrent_classifier
                     )
+                    # currrent_classifier = lgbm.train(
+                    #     params=self._best_hyperparameters_clone, 
+                    #     train_set=validation_train_dataset, 
+                    #     keep_training_booster=True,
+                    #     init_model=currrent_classifier
+                    # )
                     currrent_classifier = lgbm.train(
-                        params=self._best_hyperparameters_clone, 
+                        params=self._best_hyperparameters, 
                         train_set=validation_train_dataset, 
+                        valid_sets=[validation_dataset], 
                         keep_training_booster=True,
-                        init_model=currrent_classifier
+                        init_model=new_classifier
                     )
             self._classifiers = np.append(self._classifiers, new_classifier)
             self._ensemble_weights = np.append(self._ensemble_weights, new_weight)
