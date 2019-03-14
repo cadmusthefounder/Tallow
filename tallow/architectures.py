@@ -72,10 +72,9 @@ class OriginalEnsemble:
         if min(bincount) < self._minority_threshold:
             self._imbalanced_sampler = OldRandomMajorityUnderSampler(self._random_state, self._large_fraction)
 
-        train_data, train_labels = self._imbalanced_sampler.sample(data, y)
         self._train_data = np.concatenate((self._train_data, train_data), axis=0) if len(self._train_data) > 0 else train_data
         self._train_labels = np.concatenate((self._train_labels, train_labels), axis=0) if len(self._train_labels) > 0 else train_labels
-        self._train_data, self._train_labels = self._too_much_data_sampler.sample(data, y)
+        self._train_data, self._train_labels = self._too_much_data_sampler.sample(self._train_data, self._train_labels)
         print('self._train_data.shape: {}'.format(self._train_data.shape))
         print('self._train_labels.shape: {}'.format(self._train_labels.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'OriginalEnsemble', 'fit', 'End'))
@@ -90,12 +89,13 @@ class OriginalEnsemble:
         test_data = get_data(F, self._info)
         print('test_data.shape: {}'.format(test_data.shape))
 
+        train_data, train_labels = self._imbalanced_sampler.sample(data, y)
+
         transformed_test_data = self._transform(test_data, DataType.TEST)
-        transformed_train_data = self._transform(self._train_data, DataType.TRAIN)
+        train_data = self._transform(train_data, DataType.TRAIN)
         print('transformed_test_data.shape: {}'.format(transformed_test_data.shape))
-        print('transformed_train_data.shape: {}'.format(transformed_train_data.shape))
+        print('train_data.shape: {}'.format(train_data.shape))
        
-        train_data, train_labels = transformed_train_data, self._train_labels
         train_weights = correct_covariate_shift(
             train_data, 
             transformed_test_data, 

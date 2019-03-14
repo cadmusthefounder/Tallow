@@ -62,7 +62,7 @@ class StratifiedRandomSampler:
         if len(X) <= self._max_data:
             return X, y
 
-        ratio = float(self._max_data) / float(len(X))
+        ratio = 1 - (float(self._max_data) / float(len(X)))
         train_data, test_data, train_labels, test_labels = train_test_split(
             X, 
             y, 
