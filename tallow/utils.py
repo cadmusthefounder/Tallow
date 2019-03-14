@@ -9,7 +9,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 
 def pip_install(package):
-    pip.main(['install', package, '--upgrade-strategy only-if-needed'])
+    pip.main(['install', '--upgrade-strategy only-if-needed', package])
 
 def pip_uninstall(package):
     pip.main(['uninstall', '-y', package])
