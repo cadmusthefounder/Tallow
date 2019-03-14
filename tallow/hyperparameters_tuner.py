@@ -14,10 +14,7 @@ class HyperparametersTuner:
         print('\nFile: {} Class: {} Function: {} State: {}'.format('hyperparameters_tuner.py', 'HyperparametersTuner', 'get_best_hyperparameters', 'Start'))
         self._train_dataset = train_dataset
         self._validation_dataset = validation_dataset
-        # self._validation_data = validation_data
-        # self._validation_labels = validation_labels
-
-        print('Fixed hyperparameters')
+        
         classifier = lgbm.train(
             self._fixed_hyperparameters, 
             self._train_dataset, 
