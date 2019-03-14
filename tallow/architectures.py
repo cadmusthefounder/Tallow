@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.dummy import DummyClassifier
 from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
-from samplers import StratifiedRandomSampler, RandomMajorityUnderSampler, OldRandomMajorityUnderSampler
+from samplers import StratifiedRandomSampler, OldRandomMajorityUnderSampler
 
 class DataType:
     TRAIN = 'TRAIN'
