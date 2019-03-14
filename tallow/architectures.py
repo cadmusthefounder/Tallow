@@ -44,8 +44,8 @@ class OriginalEnsemble:
         
         self._best_hyperparameters = None
         self._classifiers = []
-        # self._imbalanced_sampler = SMOTESampler()
-        self._imbalanced_sampler = RandomUnderSampler(self._random_state)
+        self._imbalanced_sampler = SMOTESampler()
+        # self._imbalanced_sampler = RandomUnderSampler(self._random_state)
         self._too_much_data_sampler = StratifiedRandomSampler(self._max_data, self._random_state)
         self._profile = Profile.LGBM_ORIGINAL_NAME
 
@@ -65,7 +65,7 @@ class OriginalEnsemble:
         print('Number of 0 label: {}'.format(bincount[0]))
         print('Number of 1 label: {}'.format(bincount[1]))
 
-        self._train_data, self._train_labels = self._too_much_data_sampler.sample(data, y, )
+        self._train_data, self._train_labels = self._too_much_data_sampler.sample(data, y)
         print('self._train_data.shape: {}'.format(self._train_data.shape))
         print('self._train_labels.shape: {}'.format(self._train_labels.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'OriginalEnsemble', 'fit', 'End'))
