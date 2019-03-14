@@ -68,8 +68,9 @@ class OriginalEnsemble:
         print('Number of 0 label: {}'.format(bincount[0]))
         print('Number of 1 label: {}'.format(bincount[1]))
 
-        self._train_data = np.concatenate((self._train_data, data), axis=0) if len(self._train_data) > 0 else data
-        self._train_labels = np.concatenate((self._train_labels, y), axis=0) if len(self._train_labels) > 0 else y
+        train_data, train_labels = self._imbalanced_sampler.sample(data, y)
+        self._train_data = np.concatenate((self._train_data, train_data), axis=0) if len(self._train_data) > 0 else train_data
+        self._train_labels = np.concatenate((self._train_labels, train_labels), axis=0) if len(self._train_labels) > 0 else train_labels
         self._train_data, self._train_labels = self._too_much_data_sampler.sample(data, y)
         print('self._train_data.shape: {}'.format(self._train_data.shape))
         print('self._train_labels.shape: {}'.format(self._train_labels.shape))
@@ -103,10 +104,6 @@ class OriginalEnsemble:
         print('validation_data.shape: {}'.format(validation_data.shape))
         print('validation_labels.shape: {}'.format(validation_labels.shape))
 
-        train_data, train_labels = self._imbalanced_sampler.sample(train_data, train_labels)
-        print('train_data.shape: {}'.format(train_data.shape))
-        print('train_labels.shape: {}'.format(train_labels.shape))
-
         train_weights = correct_covariate_shift(
             train_data, 
             transformed_test_data, 
@@ -122,12 +119,11 @@ class OriginalEnsemble:
             self._correction_n_splits
         ) if self._should_correct else None
         train_dataset = lgbm.Dataset(train_data, train_labels, weight=train_weights, free_raw_data=False)
-        validation_dataset = train_dataset.create_valid(validation_data, validation_labels, weight=validation_weights)
 
         fixed_hyperparameters, search_space = Profile.parse_profile(self._profile)
         if self._best_hyperparameters is None:
             tuner = HyperparametersTuner(fixed_hyperparameters, search_space, self._max_evaluations)
-            self._best_hyperparameters = tuner.get_best_hyperparameters(train_dataset, validation_dataset)
+            self._best_hyperparameters = tuner.get_best_hyperparameters(train_dataset, validation_data, validation_labels)
             # self._best_hyperparameters_clone = deepcopy(self._best_hyperparameters)
             # self._best_hyperparameters_clone.pop('num_iterations', None)
             # self._best_hyperparameters_clone.pop('early_stopping_round', None)
@@ -137,7 +133,6 @@ class OriginalEnsemble:
             new_classifier = lgbm.train(
                 params=self._best_hyperparameters, 
                 train_set=train_dataset, 
-                valid_sets=[validation_dataset], 
                 keep_training_booster=True,
                 init_model=None
             )
@@ -149,8 +144,7 @@ class OriginalEnsemble:
                 self._epsilon
             )
 
-            validation_train_data, validation_train_labels = self._imbalanced_sampler.sample(validation_data, validation_labels)
-            validation_train_dataset = lgbm.Dataset(validation_train_data, validation_train_labels, free_raw_data=False)
+            validation_train_dataset = lgbm.Dataset(validation_data, validation_labels, free_raw_data=False)
             # new_classifier = lgbm.train(
             #     params=self._best_hyperparameters_clone, 
             #     train_set=validation_train_dataset, 
@@ -160,7 +154,6 @@ class OriginalEnsemble:
             new_classifier = lgbm.train(
                 params=self._best_hyperparameters, 
                 train_set=validation_train_dataset, 
-                valid_sets=[validation_dataset], 
                 keep_training_booster=True,
                 init_model=new_classifier
             )
@@ -191,7 +184,6 @@ class OriginalEnsemble:
                     currrent_classifier = lgbm.train(
                         params=self._best_hyperparameters, 
                         train_set=train_dataset, 
-                        valid_sets=[validation_dataset], 
                         keep_training_booster=True,
                         init_model=currrent_classifier
                     )
@@ -204,7 +196,6 @@ class OriginalEnsemble:
                     currrent_classifier = lgbm.train(
                         params=self._best_hyperparameters, 
                         train_set=validation_train_dataset, 
-                        valid_sets=[validation_dataset], 
                         keep_training_booster=True,
                         init_model=currrent_classifier
                     )
