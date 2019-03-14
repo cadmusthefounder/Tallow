@@ -1,4 +1,4 @@
-from imblearn.under_sampling import RandomUnderSampler
+# from imblearn.under_sampling import RandomUnderSampler
 from collections import Counter, OrderedDict
 from math import pow
 from random import random
@@ -38,17 +38,17 @@ class OldRandomMajorityUnderSampler:
         print('File: {} Class: {} Function: {} State: {} \n'.format('samplers.py', 'OldRandomMajorityUnderSampler', 'sample', 'End'))
         return X[sorted_index],y[sorted_index]
 
-class RandomMajorityUnderSampler:
+# class RandomMajorityUnderSampler:
 
-    def __init__(self, random_state, replacement=False):
-        self._sampler = RandomUnderSampler(random_state=random_state, replacement=replacement)
+#     def __init__(self, random_state, replacement=False):
+#         self._sampler = RandomUnderSampler(random_state=random_state, replacement=replacement)
 
-    def sample(self, X, y):
-        print('\nFile: {} Class: {} Function: {} State: {}'.format('samplers.py', 'RandomMajorityUnderSampler', 'sample', 'Start'))
-        sampled_X, sampled_y = self._sampler.fit_resample(X, y)
+#     def sample(self, X, y):
+#         print('\nFile: {} Class: {} Function: {} State: {}'.format('samplers.py', 'RandomMajorityUnderSampler', 'sample', 'Start'))
+#         sampled_X, sampled_y = self._sampler.fit_resample(X, y)
 
-        print('File: {} Class: {} Function: {} State: {} \n'.format('samplers.py', 'RandomMajorityUnderSampler', 'sample', 'End'))
-        return sampled_X, sampled_y 
+#         print('File: {} Class: {} Function: {} State: {} \n'.format('samplers.py', 'RandomMajorityUnderSampler', 'sample', 'End'))
+#         return sampled_X, sampled_y 
 
 class StratifiedRandomSampler:
 

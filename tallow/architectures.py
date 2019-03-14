@@ -1,10 +1,10 @@
 from math import pow
 from utils import *
 
-pip_install('sklearn')
+# pip_install('sklearn')
 pip_install('lightgbm')
 pip_install('hyperopt')
-pip_install('imbalanced-learn')
+# pip_install('imbalanced-learn')
 
 import numpy as np
 from math import pow
@@ -32,9 +32,9 @@ class OriginalEnsemble:
 
         self._iteration = 0
         self._random_state = 13
-        self._max_evaluations = 35
+        self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
-        self._should_correct = True
+        self._should_correct = False
         self._correction_threshold = 0.75
         self._correction_n_splits = 20
         self._epsilon = 0.001
@@ -65,6 +65,8 @@ class OriginalEnsemble:
         print('Number of 0 label: {}'.format(bincount[0]))
         print('Number of 1 label: {}'.format(bincount[1]))
 
+        self._train_data = np.concatenate((self._train_data, data), axis=0)
+        self._train_labels = np.concatenate((self._train_labels, y), axis=0)
         self._train_data, self._train_labels = self._too_much_data_sampler.sample(data, y)
         print('self._train_data.shape: {}'.format(self._train_data.shape))
         print('self._train_labels.shape: {}'.format(self._train_labels.shape))
