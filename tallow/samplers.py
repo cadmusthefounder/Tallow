@@ -4,6 +4,7 @@ from math import pow
 from random import random
 import numpy as np
 from sklearn.utils import check_random_state, safe_indexing
+from sklearn.model_selection import train_test_split
 
 class SMOTESampler:
 
@@ -101,19 +102,29 @@ class RandomUnderSampler:
         }
         return sampling_strategy
 
-class RandomSampler:
+class StratifiedRandomSampler:
 
-    def __init__(self, max_data):
-        self.max_data = max_data
+    def __init__(self, max_data, random_state):
+        self._max_data = max_data
+        self._random_state = random_state
 
     def sample(self, X, y):
         print('\nFile: {} Class: {} Function: {} State: {}'.format('samplers.py', 'RandomSampler', 'sample', 'Start'))
         
-        if len(X) < self.max_data:
+        if len(X) < self._max_data:
             return X, y
-        indices = np.sort(np.random.choice(len(X), self.max_data, replace=False))
+
+        ratio = float(len(X)) / float(self._max_data)
+        train_data, test_data, train_labels, test_labels = train_test_split(
+            X, 
+            y, 
+            test_size=ratio, 
+            random_state=self._random_state,
+            shuffle=True, 
+            stratify=y
+        )
         print('File: {} Class: {} Function: {} State: {} \n'.format('samplers.py', 'RandomSampler', 'sample', 'End'))
-        return X[indices,:], y[indices]
+        return train_data, train_labels
 
 class BiasedReservoirSampler:
 

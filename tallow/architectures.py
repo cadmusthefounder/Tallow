@@ -9,170 +9,15 @@ pip_install('imbalanced-learn')
 
 import numpy as np
 from math import pow
-from lightgbm import LGBMClassifier
+import lightgbm as lgbm
 from sklearn.model_selection import train_test_split
 from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
-from samplers import RandomOverSampler, RandomUnderSampler, RandomSampler, SMOTESampler
+from samplers import StratifiedRandomSampler, SMOTESampler
 
 class DataType:
     TRAIN = 'TRAIN'
-    VALIDATION = 'VALIDATION'
     TEST = 'TEST'
-
-class Original:
-    NAME = 'Original'
-
-    def __init__(self, datainfo, timeinfo):
-        self._info = extract(datainfo, timeinfo)
-        print_data_info(self._info)
-        print_time_info(self._info)
-
-        self._use_validation = True
-        self._large_dataset_validation_ratio = 0 if not self._use_validation else 0.1
-        self._small_dataset_validation_ratio = 0 if not self._use_validation else 0.25
-
-        self._dataset_size_threshold = 400000
-        self._large_dataset_max_data = 300000
-        self._small_dataset_max_data = 400000
-
-        self._iteration = 0
-        self._random_state = 13
-        self._max_evaluations = 25
-        self._dataset_budget_threshold = 0.8
-
-        self._category_indices = None
-        self._categorical_frequency_map = {}
-        self._mvc_frequency_map = {}
-        
-        self._best_hyperparameters = None
-        
-        self._train_data = np.array([])
-        self._train_labels = np.array([])
-
-        self._classifier = None
-        self._lr = None
-        self._imbalanced_sampler = RandomUnderSampler(self._random_state)
-        self._too_much_data_sampler = None
-        self._profile = Profile.LGBM_ORIGINAL_NAME
-
-    def fit(self, F, y, datainfo, timeinfo):
-        print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'Original', 'fit', 'Start'))
-
-        info = extract(datainfo, timeinfo)
-        self._info.update(info)
-        print_time_info(self._info)
-
-        data = get_data(F, self._info)
-        y = y.ravel()
-        print('data.shape: {}'.format(data.shape))
-        print('y.shape: {}'.format(y.shape))
-
-        bincount = np.bincount(y.astype(int))
-        print('Number of 0 label: {}'.format(bincount[0]))
-        print('Number of 1 label: {}'.format(bincount[1]))
-
-        max_data = self._large_dataset_max_data if is_large_dataset(len(data), self._dataset_size_threshold) else self._small_dataset_max_data
-        validation_ratio = self._large_dataset_validation_ratio if is_large_dataset(len(data), self._dataset_size_threshold) else self._small_dataset_validation_ratio
-        self._too_much_data_sampler = RandomSampler(max_data) if self._too_much_data_sampler is None else self._too_much_data_sampler
-
-        train_data, self._validation_data, train_labels, self._validation_labels = train_test_split(
-            data,
-            y,
-            test_size=validation_ratio,
-            random_state=self._random_state,
-            shuffle=True,
-            stratify=y
-        )
-        print('train_data.shape: {}'.format(train_data.shape))
-        print('train_labels.shape: {}'.format(train_labels.shape))
-        print('self._validation_data.shape: {}'.format(self._validation_data.shape))
-        print('self._validation_labels.shape: {}'.format(self._validation_labels.shape))
-
-        train_data, train_labels = self._imbalanced_sampler.sample(train_data, train_labels)
-        print('train_data.shape: {}'.format(train_data.shape))
-        print('train_labels.shape: {}'.format(train_labels.shape))
-
-        self._train_data = train_data if len(self._train_data) == 0 else np.concatenate((self._train_data, train_data), axis=0)
-        self._train_labels = train_labels if len(self._train_labels) == 0 else np.concatenate((self._train_labels, train_labels), axis=0)
-        self._train_data, self._train_labels = self._too_much_data_sampler.sample(self._train_data, self._train_labels)
-        print('self._train_data.shape: {}'.format(self._train_data.shape))
-        print('self._train_labels.shape: {}'.format(self._train_labels.shape))
-
-        print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'Original', 'fit', 'End'))
-        
-    def predict(self, F, datainfo, timeinfo):
-        print('\nFile: {} Class: {} Function: {} State: {}'.format('architectures.py', 'Original', 'predict', 'Start'))
-    
-        info = extract(datainfo, timeinfo)
-        self._info.update(info)
-        print_time_info(self._info)
-
-        test_data = get_data(F, self._info)
-        print('test_data.shape: {}'.format(test_data.shape))
-
-        classification_class, fixed_hyperparameters, search_space = Profile.parse_profile(self._profile)
-
-        test_data = self._transform(test_data, DataType.TEST)
-        train_data = self._transform(self._train_data, DataType.TRAIN)
-        validation_data = self._transform(self._validation_data, DataType.VALIDATION)
-
-        print('test_data.shape: {}'.format(test_data.shape))
-        print('train_data.shape: {}'.format(train_data.shape))
-        print('self._train_labels.shape: {}'.format(self._train_labels.shape))
-        print('validation_data.shape: {}'.format(validation_data.shape))
-        print('self._validation_labels.shape: {}'.format(self._validation_labels.shape))
-
-        weights = correct_covariate_shift(train_data, test_data, self._random_state)
-        train_pool = Pool(train_data, self._train_labels)
-        validation_pool = Pool(validation_data, self._validation_labels) if self._use_validation else None
-        validation_set = (validation_data, self._validation_labels) if self._use_validation else None
-        
-        if self._best_hyperparameters is None:
-            tuner = HyperparametersTuner(classification_class, fixed_hyperparameters, search_space, self._max_evaluations)
-            self._best_hyperparameters = tuner.get_best_hyperparameters(train_pool, validation_pool, weights)
-            print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))
-
-        if has_sufficient_time(self._dataset_budget_threshold, self._info) or self._classifier is None:
-            self._classifier = classification_class(**self._best_hyperparameters)
-            
-            if isinstance(self._classifier, LGBMClassifier):                
-                self._classifier.fit(train_data, self._train_labels, sample_weight=weights)
-            else:
-                self._classifier.fit(train_pool)
-
-        else:
-            print('Time budget exceeded.')
-
-        probabilities = self._classifier.predict_proba(test_data)[:,1]
-        print('probabilities.shape: {}'.format(probabilities.shape))
-        print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'Original', 'predict', 'End'))
-        
-        self._iteration += 1
-        return probabilities
-
-    def _transform(self, data, datatype):
-        transformed_data = np.array([])
-        time_data, numerical_data, categorical_data, mvc_data = split_data_by_type(data, self._info)
-        if len(time_data) > 0:
-            transformed_data = subtract_min_time(time_data)
-            transformed_data = np.concatenate((transformed_data, difference_between_time_columns(time_data)), axis=1)
-            transformed_data = np.concatenate((transformed_data, extract_detailed_time(time_data)), axis=1)
-        if len(numerical_data) > 0:
-            transformed_data = numerical_data if len(transformed_data) == 0 else \
-                                np.concatenate((transformed_data, numerical_data), axis=1)
-        if len(categorical_data) > 0:
-            if (datatype == DataType.TRAIN and self._iteration == 0) or datatype == DataType.TEST:
-                count_frequency(self._categorical_frequency_map, categorical_data)
-            encoded_categorical_data = encode_frequency(self._categorical_frequency_map, categorical_data)
-            transformed_data = np.concatenate((transformed_data, encoded_categorical_data), axis=1)
-        if len(mvc_data) > 0: 
-            if (datatype == DataType.TRAIN and self._iteration == 0) or datatype == DataType.TEST:
-                count_frequency(self._mvc_frequency_map, mvc_data)
-            
-            encoded_mvc_data = encode_frequency(self._mvc_frequency_map, mvc_data)
-            transformed_data = np.concatenate((transformed_data, encoded_mvc_data), axis=1)
-        return transformed_data
 
 class OriginalEnsemble:
     NAME = 'OriginalEnsemble'
@@ -182,32 +27,22 @@ class OriginalEnsemble:
         print_data_info(self._info)
         print_time_info(self._info)
 
-        self._use_validation = True
-        self._large_dataset_validation_ratio = 0 if not self._use_validation else 0.1
-        self._small_dataset_validation_ratio = 0 if not self._use_validation else 0.25
-
-        self._dataset_size_threshold = 400000
-        self._large_dataset_max_data = 300000
-        self._small_dataset_max_data = 400000
+        self._validation_ratio = 0.25
+        self._max_data = 400000
 
         self._iteration = 0
         self._random_state = 13
         self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
+        self._correction_threshold = 0.75
 
-        self._category_indices = None
         self._categorical_frequency_map = {}
         self._mvc_frequency_map = {}
         
         self._best_hyperparameters = None
-        
-        self._train_data = np.array([])
-        self._train_labels = np.array([])
-
         self._classifiers = []
         self._imbalanced_sampler = SMOTESampler()
-        self._too_much_data_sampler = None
-        self._bias_rate = pow(10, -6)
+        self._too_much_data_sampler = StratifiedRandomSampler(self._max_data, self._random_state)
         self._profile = Profile.LGBM_ORIGINAL_NAME
 
     def fit(self, F, y, datainfo, timeinfo):
@@ -226,31 +61,11 @@ class OriginalEnsemble:
         print('Number of 0 label: {}'.format(bincount[0]))
         print('Number of 1 label: {}'.format(bincount[1]))
 
-        max_data = self._large_dataset_max_data if is_large_dataset(len(data), self._dataset_size_threshold) else self._small_dataset_max_data
-        validation_ratio = self._large_dataset_validation_ratio if is_large_dataset(len(data), self._dataset_size_threshold) else self._small_dataset_validation_ratio
-        self._too_much_data_sampler = RandomSampler(max_data) if self._too_much_data_sampler is None else self._too_much_data_sampler
-
-        train_data, self._validation_data, train_labels, self._validation_labels = train_test_split(
-            data,
-            y,
-            test_size=validation_ratio,
-            random_state=self._random_state,
-            shuffle=True,
-            stratify=y
-        )
-        print('train_data.shape: {}'.format(train_data.shape))
-        print('train_labels.shape: {}'.format(train_labels.shape))
-        print('self._validation_data.shape: {}'.format(self._validation_data.shape))
-        print('self._validation_labels.shape: {}'.format(self._validation_labels.shape))
-
-        train_data, train_labels = self._imbalanced_sampler.sample(train_data, train_labels)
+        train_data, train_labels = self._too_much_data_sampler.sample(train_data, train_labels)
         print('train_data.shape: {}'.format(train_data.shape))
         print('train_labels.shape: {}'.format(train_labels.shape))
 
-        self._train_data, self._train_labels = self._too_much_data_sampler.sample(train_data, train_labels)
-        print('self._train_data.shape: {}'.format(self._train_data.shape))
-        print('self._train_labels.shape: {}'.format(self._train_labels.shape))
-
+        self._train_dataset = lgbm.Dataset(train_data, train_labels)
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'OriginalEnsemble', 'fit', 'End'))
         
     def predict(self, F, datainfo, timeinfo):
@@ -263,65 +78,79 @@ class OriginalEnsemble:
         test_data = get_data(F, self._info)
         print('test_data.shape: {}'.format(test_data.shape))
 
-        classification_class, fixed_hyperparameters, search_space = Profile.parse_profile(self._profile)
-
-        test_data = self._transform(test_data, DataType.TEST)
-        train_data = self._transform(self._train_data, DataType.TRAIN)
-        validation_data = self._transform(self._validation_data, DataType.VALIDATION)
-
-        print('test_data.shape: {}'.format(test_data.shape))
+        train_data, train_labels = self._train_dataset.get_data(), self._train_dataset.get_label()
         print('train_data.shape: {}'.format(train_data.shape))
-        print('self._train_labels.shape: {}'.format(self._train_labels.shape))
-        print('validation_data.shape: {}'.format(validation_data.shape))
-        print('self._validation_labels.shape: {}'.format(self._validation_labels.shape))
+        print('train_labels.shape: {}'.format(train_labels.shape))
 
-        weights = correct_covariate_shift(train_data, test_data, self._random_state)
-        train_pool = Pool(train_data, self._train_labels)
-        validation_pool = Pool(validation_data, self._validation_labels) if self._use_validation else None
-        validation_set = (validation_data, self._validation_labels) if self._use_validation else None
-        
+        transformed_test_data = self._transform(test_data, DataType.TEST)
+        transformed_train_data = self._transform(self._train_data, DataType.TRAIN)
+        print('transformed_test_data.shape: {}'.format(transformed_test_data.shape))
+        print('transformed_train_data.shape: {}'.format(transformed_train_data.shape))
+       
+        train_data, validation_data, train_labels, validation_labels = train_test_split(
+            transformed_train_data,
+            train_labels,
+            test_size=self._validation_ratio,
+            random_state=self._random_state,
+            shuffle=True,
+            stratify=train_labels
+        )
+        print('train_data.shape: {}'.format(train_data.shape))
+        print('train_labels.shape: {}'.format(train_labels.shape))
+        print('validation_data.shape: {}'.format(validation_data.shape))
+        print('validation_labels.shape: {}'.format(validation_labels.shape))
+
+        train_data, train_labels = self._imbalanced_sampler.sample(train_data, train_labels)
+        print('train_data.shape: {}'.format(train_data.shape))
+        print('train_labels.shape: {}'.format(train_labels.shape))
+
+        train_weights = correct_covariate_shift(train_data, transformed_test_data, self._random_state, self._correction_threshold)  
+        validation_weights =  correct_covariate_shift(validation_data, transformed_test_data, self._random_state, self._correction_threshold)  
+        train_dataset = lgbm.Dataset(train_data, train_labels, weight=train_weights)
+        validation_dataset = train_dataset.create_valid(validation_data, validation_labels, weight=validation_weights)
+
+        fixed_hyperparameters, search_space = Profile.parse_profile(self._profile)
         if self._best_hyperparameters is None:
             tuner = HyperparametersTuner(classification_class, fixed_hyperparameters, search_space, self._max_evaluations)
-            self._best_hyperparameters = tuner.get_best_hyperparameters(train_pool, validation_pool, weights)
-            print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))
+            self._best_hyperparameters = tuner.get_best_hyperparameters(train_dataset, validation_dataset)
+            print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))    
 
         if has_sufficient_time(self._dataset_budget_threshold, self._info) or len(self._classifiers) == 0:
-            classifier = classification_class(**self._best_hyperparameters)
-            
-            if isinstance(classifier, LGBMClassifier):                
-                classifier.fit(train_data, self._train_labels, sample_weight=weights)
-            else:
-                classifier.fit(train_pool)
-
+            classifier = lgbm.train(
+                self._best_hyperparameters, 
+                train_dataset, 
+                valid_sets=[validation_dataset], 
+                keep_training_booster=True
+            )
             self._classifiers.append(classifier)
 
             if len(self._classifiers) > 1:
                 for i in range(len(self._classifiers)):
                     if i == 0:
-                        probabilities = self._classifiers[i].predict_proba(validation_data)[:,1]
+                        predictions = self._classifiers[i].predict(validation_data)
                     else:
-                        probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(validation_data)[:,1]))
-                probabilities = np.transpose(probabilities)
+                        predictions = np.vstack((predictions, self._classifiers[i].predict(validation_data)))
+                predictions = np.transpose(predictions)
                 self._lr = LogisticRegression()
-                self._lr.fit(probabilities, self._validation_labels)
+                self._lr.fit(predictions, self._validation_labels)
         else:
             print('Time budget exceeded.')
 
+        self._iteration += 1
         if len(self._classifiers) == 1:
-            probabilities = self._classifiers[0].predict_proba(test_data)[:,1]
+            predictions = self._classifiers[0].predict(test_data)
         else:
             for i in range(len(self._classifiers)):
                 if i == 0:
-                    probabilities = self._classifiers[i].predict_proba(test_data)[:,1]
+                    predictions = self._classifiers[i].predict(test_data)
                 else:
-                    probabilities = np.vstack((probabilities, self._classifiers[i].predict_proba(test_data)[:,1]))
-            probabilities = np.transpose(probabilities)
-            probabilities = self._lr.predict_proba(probabilities)[:,1]
-        print('probabilities.shape: {}'.format(probabilities.shape))
-        print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'OriginalEnsemble', 'predict', 'End'))
+                    predictions = np.vstack((predictions, self._classifiers[i].predict(test_data)))
+            predictions = np.transpose(predictions)
+            predictions = self._lr.predict(predictions)
         
-        self._iteration += 1
-        return probabilities
+        print('predictions.shape: {}'.format(predictions.shape))
+        print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'OriginalEnsemble', 'predict', 'End'))
+        return predictions
 
     def _transform(self, data, datatype):
         transformed_data = np.array([])

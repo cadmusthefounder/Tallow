@@ -186,7 +186,8 @@ def encode_frequency(frequency_map, categorical_or_mvc_data):
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'encode_frequency', 'End'))
     return result
 
-def correct_covariate_shift(train_data, test_data, random_state):
+def correct_covariate_shift(train_data, test_data, random_state, threshold):
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'correct_covariate_shift', 'Start'))
     X = pd.DataFrame(test_data)
     Z = pd.DataFrame(train_data)
     X['is_z'] = 0 # 0 means test set
@@ -201,7 +202,6 @@ def correct_covariate_shift(train_data, test_data, random_state):
     predictions = np.zeros(labels.shape)
     skf = StratifiedKFold(n_splits=20, shuffle=True, random_state=random_state)
     for fold, (train_idx, test_idx) in enumerate(skf.split(XZ, labels)):
-        print('Training discriminator model for fold {}'.format(fold))
         X_train, X_test = XZ[train_idx], XZ[test_idx]
         y_train, y_test = labels[train_idx], labels[test_idx]
             
@@ -210,14 +210,15 @@ def correct_covariate_shift(train_data, test_data, random_state):
         predictions[test_idx] = probs
 
     score = roc_auc_score(labels, predictions)
-    print('ROC-AUC for X and Z distributions: {}'.format(score))
+    print('AUC: {}'.format(score))
 
-    if score <= 0.7:
+    if score <= threshold:
         return None
     predictions_Z = predictions[len(X):]
     weights = (1./predictions_Z) - 1. 
     weights /= np.mean(weights) # we do this to re-normalize the computed log-loss
     print('weights.shape: {}'.format(weights.shape))
+    print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'correct_covariate_shift', 'End'))
     return weights
 
 def is_large_dataset(data_size, dataset_size_threshold):
