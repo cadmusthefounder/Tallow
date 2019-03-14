@@ -8,7 +8,7 @@ pip_install('hyperopt')
 
 import numpy as np
 from math import pow
-import lightgbm as lgbm
+from lightgbm import LGBMClassifier
 from sklearn.model_selection import train_test_split
 from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
@@ -39,7 +39,7 @@ class OriginalEnsemble:
         self._epsilon = 0.001
         self._ensemble_size = 3
         self._minority_threshold = 10000
-        self._large_fraction = 7
+        self._large_fraction = 8
         self._small_fraction = 4
 
         self._categorical_frequency_map = {}
@@ -108,7 +108,6 @@ class OriginalEnsemble:
             self._correction_threshold, 
             self._correction_n_splits
         ) if self._should_correct else None
-        train_dataset = lgbm.Dataset(train_data, train_labels, weight=train_weights)
 
         fixed_hyperparameters, search_space = Profile.parse_profile(self._profile)
         if self._best_hyperparameters is None:
@@ -125,12 +124,10 @@ class OriginalEnsemble:
                 shuffle=True,
                 stratify=train_labels
             )
-            new_classifier = lgbm.train(
-                params=self._best_hyperparameters, 
-                train_set=train_dataset, 
-                keep_training_booster=False,
-                init_model=None
-            )
+            new_classifier = LGBMClassifier()
+            new_classifier.set_params(**self._best_hyperparameters)
+            new_classifier.fit(train_data, train_labels, weight=train_weights)
+
             new_predictions = new_classifier.predict(validation_data)
             new_weight =  compute_weight(
                 new_predictions, 

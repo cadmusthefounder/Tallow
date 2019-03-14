@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from hyperopt import fmin, tpe, space_eval, STATUS_OK, Trials
-import lightgbm as lgbm
+from lightgbm import LGBMClassifier
 
 class HyperparametersTuner:
 
@@ -15,7 +15,7 @@ class HyperparametersTuner:
     def get_best_hyperparameters(self, train_data, train_labels, validation_ratio, random_state):
         print('\nFile: {} Class: {} Function: {} State: {}'.format('hyperparameters_tuner.py', 'HyperparametersTuner', 'get_best_hyperparameters', 'Start'))
 
-        train_data, self._validation_data, train_labels, self._validation_labels = train_test_split(
+        self._train_data, self._validation_data, self._train_labels, self._validation_labels = train_test_split(
             train_data,
             train_labels,
             test_size=validation_ratio,
@@ -23,14 +23,9 @@ class HyperparametersTuner:
             shuffle=True,
             stratify=train_labels
         )
-        self._train_dataset = lgbm.Dataset(train_data, train_labels)
-
-        classifier = lgbm.train(
-            params=self._fixed_hyperparameters, 
-            train_set=self._train_dataset, 
-            keep_training_booster=False,
-            init_model=None
-        )
+        classifier = LGBMClassifier()
+        classifier.set_params(**self._fixed_hyperparameters)
+        classifier.fit(self._train_data, self._train_labels)
 
         predictions = classifier.predict(self._validation_data)
         labels = self._validation_labels
@@ -61,12 +56,11 @@ class HyperparametersTuner:
     def objective(self, trial_hyperparameters):
         print('\nFile: {} Class: {} Function: {} State: {}'.format('hyperparameters_tuner.py', 'HyperparametersTuner', 'objective', 'Start'))
         print('trial_hyperparameters: {}'.format(trial_hyperparameters))
-        classifier = lgbm.train(
-            self._fixed_hyperparameters, 
-            self._train_dataset, 
-            keep_training_booster=False,
-            init_model=None
-        )
+        
+        classifier = LGBMClassifier()
+        classifier.set_params(**self._fixed_hyperparameters)
+        classifier.fit(self._train_data, self._train_labels)
+
         predictions = classifier.predict(self._validation_data)
         labels = self._validation_labels
         trial_score = roc_auc_score(labels, predictions)
