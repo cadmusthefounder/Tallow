@@ -10,6 +10,8 @@ import numpy as np
 from math import pow
 import lightgbm as lgbm
 from sklearn.model_selection import train_test_split
+from sklearn.dummy import DummyClassifier
+from sklearn.metrics import mean_squared_error
 from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
 from samplers import StratifiedRandomSampler, SMOTESampler, RandomUnderSampler
@@ -35,6 +37,7 @@ class OriginalEnsemble:
         self._dataset_budget_threshold = 0.8
         self._correction_threshold = 0.75
         self._correction_n_splits = 20
+        self._epsilon = 0.001
 
         self._categorical_frequency_map = {}
         self._mvc_frequency_map = {}
@@ -111,39 +114,48 @@ class OriginalEnsemble:
             print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))    
 
         if has_sufficient_time(self._dataset_budget_threshold, self._info) or len(self._classifiers) == 0:
-            classifier = lgbm.train(
-                self._best_hyperparameters, 
-                train_dataset, 
+            new_classifier = lgbm.train(
+                params=self._best_hyperparameters, 
+                train_set=train_dataset, 
                 valid_sets=[validation_dataset], 
                 keep_training_booster=True,
                 init_model=None
             )
-            self._classifiers.append(classifier)
+            new_predictions = new_classifier.predict(validation_data)
+            new_weight = 1 / (mean_squared_error(new_predictions, validation_labels) + self._epsilon)
 
-            if len(self._classifiers) > 1:
-                for i in range(len(self._classifiers)):
-                    if i == 0:
-                        predictions = self._classifiers[i].predict(validation_data)
-                    else:
-                        predictions = np.vstack((predictions, self._classifiers[i].predict(validation_data)))
-                predictions = np.transpose(predictions)
-                self._lr = LogisticRegression(solver='liblinear')
-                self._lr.fit(predictions, validation_labels)
+            dummy_classifier = DummyClassifier(random_state=self._random_state)
+            dummy_classifier.fit(train_data, train_labels, weight=train_weights)
+            dummy_predictions = dummy_classifier.predict(validation_data)
+            dummy_weight = 1 / (mean_squared_error(dummy_predictions, validation_labels) + self._epsilon)
+
+            self._ensemble_weights = []
+            for i in range(len(self._classifiers)):
+                currrent_classifier = self._classifiers[i]
+                currrent_classifier_predictions = currrent_classifier.predict(validation_data)
+                currrent_classifier_weight =  1/ (mean_squared_error(currrent_classifier_predictions, validation_labels) + self._epsilon)
+                self._ensemble_weights.append(currrent_classifier_weight)
+
+                if currrent_classifier_weight > dummy_weight:
+                    currrent_classifier = lgbm.train(
+                        params=self._best_hyperparameters, 
+                        train_set=train_dataset, 
+                        valid_sets=[validation_dataset], 
+                        keep_training_booster=True,
+                        init_model=currrent_classifier
+                    )
+            
+            self._classifiers.append(classifier)
+            self._ensemble_weights.append(new_weight)
+
         else:
             print('Time budget exceeded.')
 
         self._iteration += 1
-        if len(self._classifiers) == 1:
-            predictions = self._classifiers[0].predict(transformed_test_data)
-        else:
-            for i in range(len(self._classifiers)):
-                if i == 0:
-                    predictions = self._classifiers[i].predict(transformed_test_data)
-                else:
-                    predictions = np.vstack((predictions, self._classifiers[i].predict(transformed_test_data)))
-            predictions = np.transpose(predictions)
-            predictions = self._lr.predict(predictions)
-        
+        predictions = np.zeros(len(transformed_test_data))
+        for i in range(len(self._classifiers)):
+            predictions = np.add(predictions, self._ensemble_weights[i] * self._classifiers[i].predict(transformed_test_data))
+        predictions = np.divide(predictions, np.sum(self._ensemble_weights))        
         print('predictions.shape: {}'.format(predictions.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'OriginalEnsemble', 'predict', 'End'))
         return predictions

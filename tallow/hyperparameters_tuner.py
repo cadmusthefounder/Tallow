@@ -14,10 +14,10 @@ class HyperparametersTuner:
         print('\nFile: {} Class: {} Function: {} State: {}'.format('hyperparameters_tuner.py', 'HyperparametersTuner', 'get_best_hyperparameters', 'Start'))
         self._train_dataset = train_dataset
         self._validation_dataset = validation_dataset
-        
+
         classifier = lgbm.train(
-            self._fixed_hyperparameters, 
-            self._train_dataset, 
+            params=self._fixed_hyperparameters, 
+            train_set=self._train_dataset, 
             valid_sets=[self._validation_dataset]
         )
         print(self._validation_dataset.data)
