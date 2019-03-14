@@ -96,6 +96,7 @@ class OriginalEnsemble:
 
         transformed_test_data = self._transform(test_data, DataType.TEST)
         train_data = self._transform(self._train_data, DataType.TRAIN)
+        train_labels = self._train_labels
         print('transformed_test_data.shape: {}'.format(transformed_test_data.shape))
         print('train_data.shape: {}'.format(train_data.shape))
 
