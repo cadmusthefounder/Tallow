@@ -72,7 +72,7 @@ class OriginalEnsemble:
 
         if min(bincount) < self._minority_threshold:
             self._imbalanced_sampler = OldRandomMajorityUnderSampler(self._random_state, self._large_fraction)
-            size = min(bincount) * (self._large_fraction + 1) * 3
+            size = int(min(bincount) * self._large_fraction * 2.5)
             self._too_much_data_sampler = StratifiedRandomSampler(size, self._random_state)
 
         self._transform(data, DataType.TRAIN)
