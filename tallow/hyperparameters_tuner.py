@@ -18,7 +18,9 @@ class HyperparametersTuner:
         classifier = lgbm.train(
             params=self._fixed_hyperparameters, 
             train_set=self._train_dataset, 
-            valid_sets=[self._validation_dataset]
+            valid_sets=[self._validation_dataset],
+            keep_training_booster=False,
+            init_model=None
         )
         print(self._validation_dataset.data)
         predictions = classifier.predict(self._validation_dataset.data)
@@ -53,7 +55,9 @@ class HyperparametersTuner:
         classifier = lgbm.train(
             self._fixed_hyperparameters, 
             self._train_dataset, 
-            valid_sets=[self._validation_dataset]
+            valid_sets=[self._validation_dataset],
+            keep_training_booster=False,
+            init_model=None
         )
         predictions = classifier.predict(self._validation_dataset.data)
         labels = np.array(self._validation_dataset.label)
