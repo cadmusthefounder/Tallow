@@ -27,7 +27,7 @@ class HyperparametersTuner:
         classifier.set_params(**self._fixed_hyperparameters)
         classifier.fit(self._train_data, self._train_labels)
 
-        predictions = classifier.predict_proba(validation_data)[:,1]
+        predictions = classifier.predict_proba(self._validation_data)[:,1]
         labels = self._validation_labels
         fixed_hyperparameters_score = roc_auc_score(labels, predictions)
         print('labels.shape: {}'.format(labels.shape))
@@ -61,7 +61,7 @@ class HyperparametersTuner:
         classifier.set_params(**self._fixed_hyperparameters)
         classifier.fit(self._train_data, self._train_labels)
 
-        predictions = classifier.predict_proba(validation_data)[:,1]
+        predictions = classifier.predict_proba(self._validation_data)[:,1]
         labels = self._validation_labels
         trial_score = roc_auc_score(labels, predictions)
         print('labels.shape: {}'.format(labels.shape))
