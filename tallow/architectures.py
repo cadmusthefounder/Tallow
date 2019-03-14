@@ -145,6 +145,15 @@ class OriginalEnsemble:
                 self._epsilon
             )
 
+            validation_train_data, validation_train_labels = self._imbalanced_sampler.sample(validation_data, validation_labels)
+            validation_train_dataset = lgbm.Dataset(validation_train_data, validation_train_labels)
+            new_classifier = lgbm.train(
+                params=self._best_hyperparameters, 
+                train_set=validation_train_dataset, 
+                keep_training_booster=True,
+                init_model=new_classifier
+            )
+
             dummy_classifier = DummyClassifier(random_state=self._random_state)
             dummy_classifier.fit(train_data, train_labels, sample_weight=train_weights)
             dummy_predictions = dummy_classifier.predict(validation_data)
@@ -170,8 +179,14 @@ class OriginalEnsemble:
                 if currrent_classifier_weight > dummy_weight:
                     currrent_classifier = lgbm.train(
                         params=self._best_hyperparameters, 
-                        train_set=train_dataset, 
+                        train_set=validation_train_dataset, 
                         valid_sets=[validation_dataset], 
+                        keep_training_booster=True,
+                        init_model=currrent_classifier
+                    )
+                    currrent_classifier = lgbm.train(
+                        params=self._best_hyperparameters, 
+                        train_set=validation_train_dataset, 
                         keep_training_booster=True,
                         init_model=currrent_classifier
                     )
