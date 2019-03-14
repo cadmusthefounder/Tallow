@@ -1,4 +1,4 @@
-from imblearn.over_sampling import RandomUnderSampler
+from imblearn.under_sampling import RandomUnderSampler
 from collections import Counter, OrderedDict
 from math import pow
 from random import random
