@@ -37,7 +37,7 @@ class OriginalEnsemble:
         self._correction_threshold = 0.75
         self._correction_n_splits = 5
         self._epsilon = 0.001
-        self._ensemble_size = 4
+        self._ensemble_size = 3
         self._minority_threshold = 10000
         self._large_fraction = 7
         self._small_fraction = 5
