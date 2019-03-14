@@ -1,5 +1,4 @@
 from math import pow
-from copy import deepcopy
 from utils import *
 
 # pip_install('sklearn')
@@ -10,7 +9,6 @@ pip_install('hyperopt')
 import numpy as np
 from math import pow
 import lightgbm as lgbm
-from sklearn.model_selection import train_test_split
 from sklearn.dummy import DummyClassifier
 from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
@@ -35,7 +33,7 @@ class OriginalEnsemble:
         self._random_state = 13
         self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
-        self._should_correct = False
+        self._should_correct = True
         self._correction_threshold = 0.75
         self._correction_n_splits = 10
         self._epsilon = 0.001
@@ -91,19 +89,7 @@ class OriginalEnsemble:
         print('transformed_test_data.shape: {}'.format(transformed_test_data.shape))
         print('transformed_train_data.shape: {}'.format(transformed_train_data.shape))
        
-        train_data, validation_data, train_labels, validation_labels = train_test_split(
-            transformed_train_data,
-            self._train_labels,
-            test_size=self._validation_ratio,
-            random_state=self._random_state,
-            shuffle=True,
-            stratify=self._train_labels
-        )
-        print('train_data.shape: {}'.format(train_data.shape))
-        print('train_labels.shape: {}'.format(train_labels.shape))
-        print('validation_data.shape: {}'.format(validation_data.shape))
-        print('validation_labels.shape: {}'.format(validation_labels.shape))
-
+        train_data, train_labels = transformed_train_data, self._train_labels
         train_weights = correct_covariate_shift(
             train_data, 
             transformed_test_data, 
@@ -111,58 +97,32 @@ class OriginalEnsemble:
             self._correction_threshold, 
             self._correction_n_splits
         ) if self._should_correct else None
-        validation_weights =  correct_covariate_shift(
-            validation_data, 
-            transformed_test_data, 
-            self._random_state, 
-            self._correction_threshold, 
-            self._correction_n_splits
-        ) if self._should_correct else None
-        train_dataset = lgbm.Dataset(train_data, train_labels, weight=train_weights, free_raw_data=False)
+        train_dataset = lgbm.Dataset(train_data, train_labels, weight=train_weights)
 
         fixed_hyperparameters, search_space = Profile.parse_profile(self._profile)
         if self._best_hyperparameters is None:
             tuner = HyperparametersTuner(fixed_hyperparameters, search_space, self._max_evaluations)
-            self._best_hyperparameters = tuner.get_best_hyperparameters(train_dataset, validation_data, validation_labels)
-            # self._best_hyperparameters_clone = deepcopy(self._best_hyperparameters)
-            # self._best_hyperparameters_clone.pop('num_iterations', None)
-            # self._best_hyperparameters_clone.pop('early_stopping_round', None)
+            self._best_hyperparameters = tuner.get_best_hyperparameters(train_data, train_labels, self._validation_ratio, self._random_state)
             print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))    
 
         if has_sufficient_time(self._dataset_budget_threshold, self._info) or len(self._classifiers) == 0:
+            t_d, validation_data, t_l, validation_labels = train_test_split(
+                train_data,
+                train_labels,
+                test_size=self._validation_ratio,
+                random_state=self._random_state,
+                shuffle=True,
+                stratify=train_labels
+            )
             new_classifier = lgbm.train(
                 params=self._best_hyperparameters, 
                 train_set=train_dataset, 
-                keep_training_booster=True,
+                keep_training_booster=False,
                 init_model=None
             )
             new_predictions = new_classifier.predict(validation_data)
             new_weight =  compute_weight(
                 new_predictions, 
-                validation_labels,
-                validation_weights,
-                self._epsilon
-            )
-
-            validation_train_dataset = lgbm.Dataset(validation_data, validation_labels, free_raw_data=False)
-            # new_classifier = lgbm.train(
-            #     params=self._best_hyperparameters_clone, 
-            #     train_set=validation_train_dataset, 
-            #     keep_training_booster=True,
-            #     init_model=new_classifier
-            # )
-            new_classifier = lgbm.train(
-                params=self._best_hyperparameters, 
-                train_set=validation_train_dataset, 
-                keep_training_booster=True,
-                init_model=new_classifier
-            )
-
-            dummy_classifier = DummyClassifier(random_state=self._random_state)
-            dummy_classifier.fit(train_data, train_labels, sample_weight=train_weights)
-            dummy_predictions = dummy_classifier.predict(validation_data)
-            dummy_weight =  compute_weight(
-                dummy_predictions, 
                 validation_labels,
                 validation_weights,
                 self._epsilon
@@ -180,25 +140,6 @@ class OriginalEnsemble:
                 )
                 self._ensemble_weights = np.append(self._ensemble_weights, currrent_classifier_weight)
 
-                if currrent_classifier_weight > dummy_weight:
-                    currrent_classifier = lgbm.train(
-                        params=self._best_hyperparameters, 
-                        train_set=train_dataset, 
-                        keep_training_booster=True,
-                        init_model=currrent_classifier
-                    )
-                    # currrent_classifier = lgbm.train(
-                    #     params=self._best_hyperparameters_clone, 
-                    #     train_set=validation_train_dataset, 
-                    #     keep_training_booster=True,
-                    #     init_model=currrent_classifier
-                    # )
-                    currrent_classifier = lgbm.train(
-                        params=self._best_hyperparameters, 
-                        train_set=validation_train_dataset, 
-                        keep_training_booster=True,
-                        init_model=currrent_classifier
-                    )
             self._classifiers = np.append(self._classifiers, new_classifier)
             self._ensemble_weights = np.append(self._ensemble_weights, new_weight)
             print('self._ensemble_weights: {}'.format(self._ensemble_weights))
