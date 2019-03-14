@@ -145,7 +145,7 @@ class OriginalEnsemble:
                         init_model=currrent_classifier
                     )
             
-            self._classifiers.append(classifier)
+            self._classifiers.append(new_classifier)
             self._ensemble_weights.append(new_weight)
 
         else:
