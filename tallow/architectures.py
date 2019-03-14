@@ -126,7 +126,7 @@ class OriginalEnsemble:
             )
             new_classifier = LGBMClassifier()
             new_classifier.set_params(**self._best_hyperparameters)
-            new_classifier.fit(train_data, train_labels, weight=train_weights)
+            new_classifier.fit(train_data, train_labels, sample_weight=train_weights)
 
             new_predictions = new_classifier.predict(validation_data)
             new_weight =  compute_weight(
