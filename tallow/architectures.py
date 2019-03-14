@@ -157,7 +157,8 @@ class OriginalEnsemble:
             print('self._ensemble_weights: {}'.format(self._ensemble_weights))
 
             if len(self._classifiers) > self._ensemble_size:
-                i = remove_worst_classifier(self._classifiers, validation_data, validation_labels)
+                i = np.argmin(self._ensemble_weights)
+                # i = remove_worst_classifier(self._classifiers, validation_data, validation_labels)
                 print('Removed classifier: {}'.format(i))
                 self._classifiers = np.delete(self._classifiers, i)
                 self._ensemble_weights = np.delete(self._ensemble_weights, i)
