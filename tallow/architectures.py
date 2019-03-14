@@ -9,7 +9,7 @@ pip_install('hyperopt')
 import numpy as np
 from math import pow
 import lightgbm as lgbm
-from sklearn.dummy import DummyClassifier
+from sklearn.model_selection import train_test_split
 from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
 from samplers import StratifiedRandomSampler, OldRandomMajorityUnderSampler
@@ -31,11 +31,11 @@ class OriginalEnsemble:
 
         self._iteration = 0
         self._random_state = 13
-        self._max_evaluations = 25
+        self._max_evaluations = 5
         self._dataset_budget_threshold = 0.8
         self._should_correct = True
         self._correction_threshold = 0.75
-        self._correction_n_splits = 10
+        self._correction_n_splits = 5
         self._epsilon = 0.001
         self._ensemble_size = 3
 
