@@ -21,9 +21,9 @@ class HyperparametersTuner:
             train_dataset, 
             valid_sets=[validation_dataset]
         )
-        print(self._validation_dataset.get_data())
-        predictions = classifier.predict(self._validation_dataset.get_data())
-        labels = np.array(self._validation_dataset.get_label())
+        print(self._validation_dataset.data)
+        predictions = classifier.predict(self._validation_dataset.data)
+        labels = np.array(self._validation_dataset.label)
         fixed_hyperparameters_score = roc_auc_score(labels, predictions)
         print('labels.shape: {}'.format(labels.shape))
         print('predictions.shape: {}'.format(predictions.shape))
@@ -56,8 +56,8 @@ class HyperparametersTuner:
             train_dataset, 
             valid_sets=[validation_dataset]
         )
-        predictions = classifier.predict(self._validation_dataset.get_data())
-        labels = np.array(self._validation_dataset.get_label())
+        predictions = classifier.predict(self._validation_dataset.data)
+        labels = np.array(self._validation_dataset.label)
         trial_score = roc_auc_score(labels, predictions)
         print('labels.shape: {}'.format(labels.shape))
         print('predictions.shape: {}'.format(predictions.shape))
