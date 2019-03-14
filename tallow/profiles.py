@@ -15,11 +15,9 @@ class Profile:
             'bagging_freq': 2, 
             'num_iterations': 600, 
             'min_data_in_leaf': 20,
-            'early_stopping_round': 0,
             'boosting_type': 'gbdt', 
             'objective': 'binary', 
-            'boost_from_average': False,
-            'metric': 'auc'
+            'boost_from_average': False
         },
         'search_space': {
             'learning_rate': hp.loguniform('learning_rate', np.log(0.001), np.log(0.01)),
@@ -29,11 +27,9 @@ class Profile:
             'bagging_freq': scope.int(hp.quniform('bagging_freq', 2, 10, 1)), 
             'num_iterations': scope.int(hp.quniform('num_iterations', 100, 800, 50)), 
             'min_data_in_leaf': scope.int(hp.quniform('min_data_in_leaf', 20, 100, 10)),
-            'early_stopping_round': 0,
             'boosting_type': 'gbdt', 
             'objective': 'binary',
-            'boost_from_average': False,
-            'metric': 'auc'
+            'boost_from_average': False
         }
     }
 
