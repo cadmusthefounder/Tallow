@@ -15,7 +15,7 @@ class Profile:
             'bagging_freq': 2, 
             'min_data_in_leaf': 20,
             'num_iterations': 600, 
-            'early_stopping_round': 50,
+            'early_stopping_round': 75,
             'boosting_type': 'gbdt', 
             'objective': 'binary', 
             'metric': 'auc'
@@ -28,7 +28,7 @@ class Profile:
             'bagging_freq': scope.int(hp.quniform('bagging_freq', 2, 10, 1)), 
             'min_data_in_leaf': scope.int(hp.quniform('min_data_in_leaf', 10, 120, 10)),
             'num_iterations': 600, 
-            'early_stopping_round': 30,
+            'early_stopping_round': 75,
             'boosting_type': 'gbdt', 
             'objective': 'binary',
             'metric': 'auc'

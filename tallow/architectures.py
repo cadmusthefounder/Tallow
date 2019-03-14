@@ -14,7 +14,7 @@ from sklearn.dummy import DummyClassifier
 from sklearn.metrics import mean_squared_error
 from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
-from samplers import StratifiedRandomSampler, SMOTESampler, RandomUnderSampler
+from samplers import StratifiedRandomSampler, RandomMajorityUnderSampler
 
 class DataType:
     TRAIN = 'TRAIN'
@@ -35,6 +35,7 @@ class OriginalEnsemble:
         self._random_state = 13
         self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
+        self._should_correct = False
         self._correction_threshold = 0.75
         self._correction_n_splits = 20
         self._epsilon = 0.001
@@ -44,8 +45,7 @@ class OriginalEnsemble:
         
         self._best_hyperparameters = None
         self._classifiers = []
-        self._imbalanced_sampler = SMOTESampler()
-        # self._imbalanced_sampler = RandomUnderSampler(self._random_state)
+        self._imbalanced_sampler = RandomMajorityUnderSampler(self._random_state)
         self._too_much_data_sampler = StratifiedRandomSampler(self._max_data, self._random_state)
         self._profile = Profile.LGBM_ORIGINAL_NAME
 
@@ -102,8 +102,20 @@ class OriginalEnsemble:
         print('train_data.shape: {}'.format(train_data.shape))
         print('train_labels.shape: {}'.format(train_labels.shape))
 
-        train_weights = correct_covariate_shift(train_data, transformed_test_data, self._random_state, self._correction_threshold, self._correction_n_splits)  
-        validation_weights =  correct_covariate_shift(validation_data, transformed_test_data, self._random_state, self._correction_threshold, self._correction_n_splits)  
+        train_weights = correct_covariate_shift(
+            train_data, 
+            transformed_test_data, 
+            self._random_state, 
+            self._correction_threshold, 
+            self._correction_n_splits
+        ) if self._should_correct else None
+        validation_weights =  correct_covariate_shift(
+            validation_data, 
+            transformed_test_data, 
+            self._random_state, 
+            self._correction_threshold, 
+            self._correction_n_splits
+        ) if self._should_correct else None
         train_dataset = lgbm.Dataset(train_data, train_labels, weight=train_weights, free_raw_data=False)
         validation_dataset = train_dataset.create_valid(validation_data, validation_labels, weight=validation_weights)
 
@@ -144,10 +156,8 @@ class OriginalEnsemble:
                         keep_training_booster=True,
                         init_model=currrent_classifier
                     )
-            
             self._classifiers.append(new_classifier)
             self._ensemble_weights.append(new_weight)
-
         else:
             print('Time budget exceeded.')
 
