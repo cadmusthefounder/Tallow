@@ -198,7 +198,7 @@ def correct_covariate_shift(train_data, test_data, random_state, threshold):
     XZ = XZ.drop('is_z', axis=1).values
     X, Z = X.values, Z.values
 
-    clf = LogisticRegression()
+    clf = LogisticRegression(solver='lbfgs')
     predictions = np.zeros(labels.shape)
     skf = StratifiedKFold(n_splits=20, shuffle=True, random_state=random_state)
     for fold, (train_idx, test_idx) in enumerate(skf.split(XZ, labels)):

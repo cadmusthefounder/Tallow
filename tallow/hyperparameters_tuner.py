@@ -5,8 +5,7 @@ import lightgbm as lgbm
 
 class HyperparametersTuner:
 
-    def __init__(self, classifier_class, fixed_hyperparameters, search_space, max_evaluations):
-        self._classifier_class = classifier_class
+    def __init__(self, fixed_hyperparameters, search_space, max_evaluations):
         self._fixed_hyperparameters = fixed_hyperparameters
         self._search_space = search_space
         self._max_evaluations = max_evaluations

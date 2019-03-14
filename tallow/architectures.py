@@ -104,7 +104,7 @@ class OriginalEnsemble:
 
         fixed_hyperparameters, search_space = Profile.parse_profile(self._profile)
         if self._best_hyperparameters is None:
-            tuner = HyperparametersTuner(classification_class, fixed_hyperparameters, search_space, self._max_evaluations)
+            tuner = HyperparametersTuner(fixed_hyperparameters, search_space, self._max_evaluations)
             self._best_hyperparameters = tuner.get_best_hyperparameters(train_dataset, validation_dataset)
             print('self._best_hyperparameters: {}'.format(self._best_hyperparameters))    
 
@@ -124,7 +124,7 @@ class OriginalEnsemble:
                     else:
                         predictions = np.vstack((predictions, self._classifiers[i].predict(validation_data)))
                 predictions = np.transpose(predictions)
-                self._lr = LogisticRegression()
+                self._lr = LogisticRegression(solver='lbfgs')
                 self._lr.fit(predictions, self._validation_labels)
         else:
             print('Time budget exceeded.')
