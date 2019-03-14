@@ -89,7 +89,7 @@ class OriginalEnsemble:
         test_data = get_data(F, self._info)
         print('test_data.shape: {}'.format(test_data.shape))
 
-        train_data, train_labels = self._imbalanced_sampler.sample(data, y)
+        train_data, train_labels = self._imbalanced_sampler.sample(self._train_data, self._train_labels)
 
         transformed_test_data = self._transform(test_data, DataType.TEST)
         train_data = self._transform(train_data, DataType.TRAIN)
