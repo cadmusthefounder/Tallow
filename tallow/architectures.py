@@ -35,7 +35,7 @@ class OriginalEnsemble:
         self._dataset_budget_threshold = 0.8
         self._should_correct = True
         self._correction_threshold = 0.8
-        self._correction_n_splits = 5
+        self._correction_n_splits = 15
         self._epsilon = 0.001
         self._ensemble_size = 3
         self._minority_threshold = 10000

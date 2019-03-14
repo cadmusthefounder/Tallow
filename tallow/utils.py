@@ -6,7 +6,7 @@ import pandas as pd
 from collections import Counter
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import StratifiedKFold
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import roc_auc_score, mean_squared_error
 
 def pip_install(package):
@@ -207,7 +207,7 @@ def correct_covariate_shift(train_data, test_data, random_state, threshold, n_sp
     XZ = XZ.drop('is_z', axis=1).values
     X, Z = X.values, Z.values
 
-    clf = LogisticRegression(solver='liblinear')
+    clf = RandomForestRegressor(max_depth=3)
     predictions = np.zeros(labels.shape)
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
     for fold, (train_idx, test_idx) in enumerate(skf.split(XZ, labels)):
@@ -215,7 +215,7 @@ def correct_covariate_shift(train_data, test_data, random_state, threshold, n_sp
         y_train, y_test = labels[train_idx], labels[test_idx]
             
         clf.fit(X_train, y_train)
-        probs = clf.predict_proba(X_test)[:, 1]
+        probs = clf.predict(X_test)
         predictions[test_idx] = probs
 
     score = roc_auc_score(labels, predictions)
