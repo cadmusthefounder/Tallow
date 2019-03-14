@@ -37,7 +37,7 @@ class OriginalEnsemble:
         self._dataset_budget_threshold = 0.8
         self._should_correct = False
         self._correction_threshold = 0.75
-        self._correction_n_splits = 20
+        self._correction_n_splits = 10
         self._epsilon = 0.001
         self._ensemble_size = 3
 
@@ -190,7 +190,7 @@ class OriginalEnsemble:
                 if currrent_classifier_weight > dummy_weight:
                     currrent_classifier = lgbm.train(
                         params=self._best_hyperparameters, 
-                        train_set=validation_train_dataset, 
+                        train_set=train_dataset, 
                         valid_sets=[validation_dataset], 
                         keep_training_booster=True,
                         init_model=currrent_classifier
@@ -206,7 +206,7 @@ class OriginalEnsemble:
                         train_set=validation_train_dataset, 
                         valid_sets=[validation_dataset], 
                         keep_training_booster=True,
-                        init_model=new_classifier
+                        init_model=currrent_classifier
                     )
             self._classifiers = np.append(self._classifiers, new_classifier)
             self._ensemble_weights = np.append(self._ensemble_weights, new_weight)
