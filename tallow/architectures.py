@@ -34,7 +34,7 @@ class OriginalEnsemble:
         self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
         self._correction_threshold = 0.75
-        self._correction_n_splits = 5
+        self._correction_n_splits = 20
 
         self._categorical_frequency_map = {}
         self._mvc_frequency_map = {}
