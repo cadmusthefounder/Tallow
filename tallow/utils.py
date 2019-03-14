@@ -4,9 +4,15 @@ import random
 import numpy as np
 import pandas as pd
 from collections import Counter
+from sklearn.model_selection import StratifiedKFold
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score
 
 def pip_install(package):
     pip.main(['install', package])
+
+def pip_uninstall(package):
+    pip.main(['uninstall', package])
 
 def extract(datainfo, timeinfo):
     time_budget = datainfo['time_budget']
@@ -179,6 +185,40 @@ def encode_frequency(frequency_map, categorical_or_mvc_data):
         result = encoded_col if i == 0 else np.concatenate((result, encoded_col), axis=1)
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'encode_frequency', 'End'))
     return result
+
+def correct_covariate_shift(train_data, test_data, random_state):
+    X = pd.DataFrame(test_data)
+    Z = pd.DataFrame(train_data)
+    X['is_z'] = 0 # 0 means test set
+    Z['is_z'] = 1 # 1 means training set
+    XZ = pd.concat( [X, Z], ignore_index=True, axis=0 )
+
+    labels = XZ['is_z'].values
+    XZ = XZ.drop('is_z', axis=1).values
+    X, Z = X.values, Z.values
+
+    clf = LogisticRegression()
+    predictions = np.zeros(labels.shape)
+    skf = StratifiedKFold(n_splits=20, shuffle=True, random_state=random_state)
+    for fold, (train_idx, test_idx) in enumerate(skf.split(XZ, labels)):
+        print('Training discriminator model for fold {}'.format(fold))
+        X_train, X_test = XZ[train_idx], XZ[test_idx]
+        y_train, y_test = labels[train_idx], labels[test_idx]
+            
+        clf.fit(X_train, y_train)
+        probs = clf.predict_proba(X_test)[:, 1]
+        predictions[test_idx] = probs
+
+    score = roc_auc_score(labels, predictions)
+    print('ROC-AUC for X and Z distributions: {}'.format(score))
+
+    if score <= 0.7:
+        return None
+    predictions_Z = predictions[len(X):]
+    weights = (1./predictions_Z) - 1. 
+    weights /= np.mean(weights) # we do this to re-normalize the computed log-loss
+    print('weights.shape: {}'.format(weights.shape))
+    return weights
 
 def is_large_dataset(data_size, dataset_size_threshold):
     return data_size > dataset_size_threshold

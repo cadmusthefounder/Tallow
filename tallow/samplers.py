@@ -1,8 +1,17 @@
+from imblearn.over_sampling import SMOTE
 from collections import Counter, OrderedDict
 from math import pow
 from random import random
 import numpy as np
 from sklearn.utils import check_random_state, safe_indexing
+
+class SMOTESampler:
+
+    def __init__(self):
+        self._sampler = SMOTE()
+
+    def sample(self, X, y):
+        return self._sampler.fit_resample(X, y)
 
 class RandomOverSampler:
     

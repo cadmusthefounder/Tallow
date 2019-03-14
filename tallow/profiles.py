@@ -8,7 +8,6 @@ from hyperopt.pyll.base import scope
 class Profile:
 
     LGBM_ORIGINAL_NAME = 'LGBM_ORIGINAL'
-    CATBOOST_ORIGINAL_NAME = 'CATBOOST_ORIGINAL'
 
     LGBM_ORIGINAL = {
         'class': LGBMClassifier,
@@ -38,46 +37,11 @@ class Profile:
         }
     }
 
-    CATBOOST_ORIGINAL = {
-        'class': CatBoostClassifier,
-        'fixed_hyperparameters': {
-            'loss_function': 'Logloss',
-            'eval_metric': 'AUC:hints=skip_train~false',
-            'use_best_model': True,
-            'depth': 8,
-            'random_strength': 1,
-            'bagging_temperature': 1,
-            'boosting_type': 'Plain',
-            'max_ctr_complexity': 2,
-            'verbose': True,
-            'random_state': 13
-        },
-        'search_space': {
-            'loss_function': 'Logloss',
-            'eval_metric': 'AUC:hints=skip_train~false',
-            'use_best_model': True,
-            'depth': scope.int(hp.quniform('depth', 6, 10, 1)),
-            'random_strength': hp.loguniform('random_strength', np.log(1), np.log(2)),
-            'bagging_temperature': hp.loguniform('bagging_temperature', np.log(0.1), np.log(3)),
-            'boosting_type': 'Plain',
-            'max_ctr_complexity': 2,
-            'verbose': False,
-            'random_state': 13
-        }
-    }
-
     NAME_PROFILE_MAP = {
-        LGBM_ORIGINAL_NAME: LGBM_ORIGINAL,
-        CATBOOST_ORIGINAL_NAME: CATBOOST_ORIGINAL
+        LGBM_ORIGINAL_NAME: LGBM_ORIGINAL
     }
 
     @staticmethod
-    def parse_profile(profile_name, early_stopping_rounds):
+    def parse_profile(profile_name):
         profile = Profile.NAME_PROFILE_MAP[profile_name]
-        if early_stopping_rounds == 0:
-            return profile['class'], profile['fixed_hyperparameters'], profile['search_space']
-        else:
-            profile_copy = deepcopy(profile)
-            profile_copy['fixed_hyperparameters']['early_stopping_rounds'] = early_stopping_rounds
-            profile_copy['search_space']['early_stopping_rounds'] = early_stopping_rounds
-            return profile_copy['class'], profile_copy['fixed_hyperparameters'], profile_copy['search_space']
+        return profile['class'], profile['fixed_hyperparameters'], profile['search_space']
