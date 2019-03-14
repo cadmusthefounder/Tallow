@@ -72,9 +72,11 @@ class OriginalEnsemble:
 
         if min(bincount) < self._minority_threshold:
             self._imbalanced_sampler = OldRandomMajorityUnderSampler(self._random_state, self._large_fraction)
-            size = int(min(bincount) * self._large_fraction * 4)
+            size = int(min(bincount) * self._large_fraction * 2.5)
             self._too_much_data_sampler = StratifiedRandomSampler(size, self._random_state)
 
+        self._categorical_frequency_map = {}
+        self._mvc_frequency_map = {}
         self._transform(data, DataType.TRAIN)
 
         self._train_data = np.concatenate((self._train_data, data), axis=0) if len(self._train_data) > 0 else data
@@ -167,7 +169,8 @@ class OriginalEnsemble:
             predictions = np.zeros(len(transformed_test_data))
             for i in range(len(self._classifiers)):
                 predictions = np.add(predictions, self._ensemble_weights[i] * self._classifiers[i].predict_proba(transformed_test_data)[:,1])
-            predictions = np.divide(predictions, np.sum(self._ensemble_weights))        
+            predictions = np.divide(predictions, np.sum(self._ensemble_weights))       
+        self._iteration += 1 
         print('predictions.shape: {}'.format(predictions.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'OriginalEnsemble', 'predict', 'End'))
         return predictions
@@ -183,12 +186,12 @@ class OriginalEnsemble:
             transformed_data = numerical_data if len(transformed_data) == 0 else \
                                 np.concatenate((transformed_data, numerical_data), axis=1)
         if len(categorical_data) > 0:
-            if (datatype == DataType.TRAIN and self._iteration == 0) or datatype == DataType.TEST:
+            if (datatype == DataType.TRAIN and self._iteration % 2 == 0) or datatype == DataType.TEST:
                 self._categorical_frequency_map = count_frequency(self._categorical_frequency_map, categorical_data)
             encoded_categorical_data = encode_frequency(self._categorical_frequency_map, categorical_data)
             transformed_data = np.concatenate((transformed_data, encoded_categorical_data), axis=1)
         if len(mvc_data) > 0: 
-            if (datatype == DataType.TRAIN and self._iteration == 0) or datatype == DataType.TEST:
+            if (datatype == DataType.TRAIN and self._iteration % 2 == 0) or datatype == DataType.TEST:
                 self._mvc_frequency_map = count_frequency(self._mvc_frequency_map, mvc_data)
             
             encoded_mvc_data = encode_frequency(self._mvc_frequency_map, mvc_data)
