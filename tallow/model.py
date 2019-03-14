@@ -4,7 +4,6 @@ from os.path import isfile
 from architectures import *
 
 ARCHITECTURE_MAPPING = {
-    Original.NAME: Original,
     OriginalEnsemble.NAME: OriginalEnsemble
 }
 
