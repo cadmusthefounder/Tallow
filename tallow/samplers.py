@@ -80,5 +80,5 @@ class RandomSampler:
         self._random_state = random_state
 
     def sample(self, X, length):
-        indices = list(sorted(np.random.choice(len(X), length, replace=False)))
+        indices = list(sorted(np.random.choice(len(X), length, replace=True)))
         return X[indices,:]
