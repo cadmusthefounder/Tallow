@@ -33,7 +33,7 @@ class OriginalEnsemble:
 
         self._iteration = 0
         self._random_state = 13
-        self._max_evaluations = 25
+        self._max_evaluations = 5
         self._dataset_budget_threshold = 0.8
         self._correction_threshold = 0.75
         self._correction_n_splits = 20
@@ -125,7 +125,7 @@ class OriginalEnsemble:
             new_weight = 1 / (mean_squared_error(new_predictions, validation_labels) + self._epsilon)
 
             dummy_classifier = DummyClassifier(random_state=self._random_state)
-            dummy_classifier.fit(train_data, train_labels, weight=train_weights)
+            dummy_classifier.fit(train_data, train_labels, sample_weight=train_weights)
             dummy_predictions = dummy_classifier.predict(validation_data)
             dummy_weight = 1 / (mean_squared_error(dummy_predictions, validation_labels) + self._epsilon)
 
