@@ -38,7 +38,8 @@ class OriginalEnsemble:
         self._correction_n_splits = 5
         self._epsilon = 0.001
         self._ensemble_size = 3
-        self._large_fraction = 10
+        self._minority_threshold = 10000
+        self._large_fraction = 8
         self._small_fraction = 5
 
         self._categorical_frequency_map = {}
@@ -68,7 +69,7 @@ class OriginalEnsemble:
         print('Number of 0 label: {}'.format(bincount[0]))
         print('Number of 1 label: {}'.format(bincount[1]))
 
-        if min(bincount) < 10000:
+        if min(bincount) < self._minority_threshold:
             self._imbalanced_sampler = OldRandomMajorityUnderSampler(self._random_state, self._large_fraction)
 
         train_data, train_labels = self._imbalanced_sampler.sample(data, y)
