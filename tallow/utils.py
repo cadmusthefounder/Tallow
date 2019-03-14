@@ -235,7 +235,7 @@ def compute_weight(predictions, labels, weights, epsilon):
 
 def compute_q_statistic(classifiers, data, labels):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'compute_q_statistic', 'Start'))
-    normalise, q = 0
+    normalise = q = 0
     for i in range(len(classifiers)):
         for j in range(i, len(classifiers)):
             predictions_1 = classifiers[i].predict(data)

@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.dummy import DummyClassifier
 from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
-from samplers import StratifiedRandomSampler, RandomMajorityUnderSampler
+from samplers import StratifiedRandomSampler, RandomMajorityUnderSampler, OldRandomMajorityUnderSampler
 
 class DataType:
     TRAIN = 'TRAIN'
@@ -38,14 +38,15 @@ class OriginalEnsemble:
         self._correction_threshold = 0.75
         self._correction_n_splits = 20
         self._epsilon = 0.001
-        self._ensemble_size = 3
+        self._ensemble_size = 2
 
         self._categorical_frequency_map = {}
         self._mvc_frequency_map = {}
         
         self._best_hyperparameters = None
         self._classifiers = []
-        self._imbalanced_sampler = RandomMajorityUnderSampler(self._random_state)
+        # self._imbalanced_sampler = RandomMajorityUnderSampler(self._random_state)
+        self._imbalanced_sampler = OldRandomMajorityUnderSampler(self._random_state)
         self._too_much_data_sampler = StratifiedRandomSampler(self._max_data, self._random_state)
         self._profile = Profile.LGBM_ORIGINAL_NAME
 
