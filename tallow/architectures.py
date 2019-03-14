@@ -31,7 +31,7 @@ class OriginalEnsemble:
 
         self._iteration = 0
         self._random_state = 13
-        self._max_evaluations = 5
+        self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
         self._should_correct = True
         self._correction_threshold = 0.75
