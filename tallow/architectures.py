@@ -1,7 +1,6 @@
 from math import pow
 from utils import *
 
-pip_uninstall('sklearn')
 pip_install('sklearn')
 pip_install('lightgbm')
 pip_install('hyperopt')
@@ -87,7 +86,7 @@ class OriginalEnsemble:
             test_size=self._validation_ratio,
             random_state=self._random_state,
             shuffle=True,
-            stratify=train_labels
+            stratify=self._train_labels
         )
         print('train_data.shape: {}'.format(train_data.shape))
         print('train_labels.shape: {}'.format(train_labels.shape))
