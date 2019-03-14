@@ -33,7 +33,7 @@ class OriginalEnsemble:
         self._random_state = 13
         self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
-        self._should_correct = True
+        self._should_correct = False
         self._correction_threshold = 0.75
         self._correction_n_splits = 5
         self._epsilon = 0.001
