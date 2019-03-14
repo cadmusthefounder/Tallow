@@ -42,6 +42,8 @@ class OriginalEnsemble:
 
         self._categorical_frequency_map = {}
         self._mvc_frequency_map = {}
+        self._train_data = []
+        self._train_labels = []
         
         self._best_hyperparameters = None
         self._classifiers = np.array([])
@@ -65,8 +67,8 @@ class OriginalEnsemble:
         print('Number of 0 label: {}'.format(bincount[0]))
         print('Number of 1 label: {}'.format(bincount[1]))
 
-        self._train_data = np.concatenate((self._train_data, data), axis=0)
-        self._train_labels = np.concatenate((self._train_labels, y), axis=0)
+        self._train_data = np.concatenate((self._train_data, data), axis=0) if len(self._train_data) > 0 else data
+        self._train_labels = np.concatenate((self._train_labels, y), axis=0) if len(self._train_labels) > 0 else y
         self._train_data, self._train_labels = self._too_much_data_sampler.sample(data, y)
         print('self._train_data.shape: {}'.format(self._train_data.shape))
         print('self._train_labels.shape: {}'.format(self._train_labels.shape))
