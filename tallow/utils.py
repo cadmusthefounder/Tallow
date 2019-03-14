@@ -238,8 +238,8 @@ def compute_q_statistic(classifiers, data, labels):
     normalise = q = 0
     for i in range(len(classifiers)):
         for j in range(i + 1, len(classifiers)):
-            predictions_1 = classifiers[i].predict(data)
-            predictions_2 = classifiers[j].predict(data)
+            predictions_1 = np.where(classifiers[i].predict(data) > 0.5, 1, 0)
+            predictions_2 = np.where(classifiers[j].predict(data) > 0.5, 1, 0)
             n00, n01, n10, n11 = compute_confusion_matrix(predictions_1, predictions_2, labels)
             q += float((n11 * n00) -  (n01 * n10)) / float((n11 * n00) + (n01 * n10))
             normalise += 1
@@ -265,11 +265,11 @@ def compute_confusion_matrix(predictions_1, predictions_2, labels):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'compute_confusion_matrix', 'Start'))
     n00 = n01 = n10 = n11 = 0
     for i in range(len(labels)):
-        if predictions_1[i] == predictions_2[i] and predictions_1[i] == labels[i]:
+        if (predictions_1[i] == predictions_2[i]) and predictions_1[i] == labels[i]:
             n11 += 1
-        elif predictions_1[i] == predictions_2[i] and predictions_1[i] != labels[i]:
+        elif (predictions_1[i] == predictions_2[i]) and predictions_1[i] != labels[i]:
             n00 += 1
-        elif predictions_1[i] != predictions_2[i] and predictions_1[i] == labels[i]:
+        elif (predictions_1[i] != predictions_2[i]) and predictions_1[i] == labels[i]:
             n10 += 1
         else:
             n01 += 1
