@@ -61,7 +61,7 @@ class OriginalEnsemble:
         print('Number of 0 label: {}'.format(bincount[0]))
         print('Number of 1 label: {}'.format(bincount[1]))
 
-        train_data, train_labels = self._too_much_data_sampler.sample(train_data, train_labels)
+        train_data, train_labels = self._too_much_data_sampler.sample(data, y)
         print('train_data.shape: {}'.format(train_data.shape))
         print('train_labels.shape: {}'.format(train_labels.shape))
 
