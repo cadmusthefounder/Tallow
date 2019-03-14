@@ -32,7 +32,7 @@ class OriginalEnsemble:
 
         self._iteration = 0
         self._random_state = 13
-        self._max_evaluations = 25
+        self._max_evaluations = 35
         self._dataset_budget_threshold = 0.8
         self._should_correct = True
         self._correction_threshold = 0.75
@@ -45,7 +45,6 @@ class OriginalEnsemble:
         
         self._best_hyperparameters = None
         self._classifiers = np.array([])
-        # self._imbalanced_sampler = RandomMajorityUnderSampler(self._random_state)
         self._imbalanced_sampler = OldRandomMajorityUnderSampler(self._random_state)
         self._too_much_data_sampler = StratifiedRandomSampler(self._max_data, self._random_state)
         self._profile = Profile.LGBM_ORIGINAL_NAME
@@ -205,12 +204,12 @@ class OriginalEnsemble:
                                 np.concatenate((transformed_data, numerical_data), axis=1)
         if len(categorical_data) > 0:
             if (datatype == DataType.TRAIN and self._iteration == 0) or datatype == DataType.TEST:
-                count_frequency(self._categorical_frequency_map, categorical_data)
+                self._categorical_frequency_map = count_frequency(self._categorical_frequency_map, categorical_data)
             encoded_categorical_data = encode_frequency(self._categorical_frequency_map, categorical_data)
             transformed_data = np.concatenate((transformed_data, encoded_categorical_data), axis=1)
         if len(mvc_data) > 0: 
             if (datatype == DataType.TRAIN and self._iteration == 0) or datatype == DataType.TEST:
-                count_frequency(self._mvc_frequency_map, mvc_data)
+                self._mvc_frequency_map = count_frequency(self._mvc_frequency_map, mvc_data)
             
             encoded_mvc_data = encode_frequency(self._mvc_frequency_map, mvc_data)
             transformed_data = np.concatenate((transformed_data, encoded_mvc_data), axis=1)
