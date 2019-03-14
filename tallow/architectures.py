@@ -149,7 +149,7 @@ class OriginalEnsemble:
                 self._epsilon
             )
 
-            validation_train_data, validation_train_labels = self._imbalanced_sampler.sample(validation_data, validation_labels)
+            validation_train_data, validation_train_labels = self._imbalanced_sampler.sample(validation_data, validation_labels, free_raw_data=False)
             validation_train_dataset = lgbm.Dataset(validation_train_data, validation_train_labels)
             new_classifier = lgbm.train(
                 params=self._best_hyperparameters_clone, 
