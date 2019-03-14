@@ -115,7 +115,8 @@ class OriginalEnsemble:
                 self._best_hyperparameters, 
                 train_dataset, 
                 valid_sets=[validation_dataset], 
-                keep_training_booster=True
+                keep_training_booster=True,
+                init_model=None
             )
             self._classifiers.append(classifier)
 
