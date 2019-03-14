@@ -132,13 +132,13 @@ class OriginalEnsemble:
 
         self._iteration += 1
         if len(self._classifiers) == 1:
-            predictions = self._classifiers[0].predict(test_data)
+            predictions = self._classifiers[0].predict(transformed_test_data)
         else:
             for i in range(len(self._classifiers)):
                 if i == 0:
-                    predictions = self._classifiers[i].predict(test_data)
+                    predictions = self._classifiers[i].predict(transformed_test_data)
                 else:
-                    predictions = np.vstack((predictions, self._classifiers[i].predict(test_data)))
+                    predictions = np.vstack((predictions, self._classifiers[i].predict(transformed_test_data)))
             predictions = np.transpose(predictions)
             predictions = self._lr.predict(predictions)
         
