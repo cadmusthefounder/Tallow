@@ -61,11 +61,9 @@ class OriginalEnsemble:
         print('Number of 0 label: {}'.format(bincount[0]))
         print('Number of 1 label: {}'.format(bincount[1]))
 
-        train_data, train_labels = self._too_much_data_sampler.sample(data, y, )
-        print('train_data.shape: {}'.format(train_data.shape))
-        print('train_labels.shape: {}'.format(train_labels.shape))
-
-        self._train_dataset = lgbm.Dataset(train_data, train_labels, free_raw_data=False)
+        self._train_data, self._train_labels = self._too_much_data_sampler.sample(data, y, )
+        print('self._train_data.shape: {}'.format(self._train_data.shape))
+        print('self._train_labels.shape: {}'.format(self._train_labels.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'OriginalEnsemble', 'fit', 'End'))
         
     def predict(self, F, datainfo, timeinfo):
@@ -78,10 +76,6 @@ class OriginalEnsemble:
         test_data = get_data(F, self._info)
         print('test_data.shape: {}'.format(test_data.shape))
 
-        train_data, train_labels = self._train_dataset.get_data(), self._train_dataset.get_label()
-        print('train_data.shape: {}'.format(train_data.shape))
-        print('train_labels.shape: {}'.format(train_labels.shape))
-
         transformed_test_data = self._transform(test_data, DataType.TEST)
         transformed_train_data = self._transform(self._train_data, DataType.TRAIN)
         print('transformed_test_data.shape: {}'.format(transformed_test_data.shape))
@@ -89,7 +83,7 @@ class OriginalEnsemble:
        
         train_data, validation_data, train_labels, validation_labels = train_test_split(
             transformed_train_data,
-            train_labels,
+            self._train_labels,
             test_size=self._validation_ratio,
             random_state=self._random_state,
             shuffle=True,
