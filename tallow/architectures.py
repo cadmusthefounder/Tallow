@@ -160,7 +160,7 @@ class OriginalEnsemble:
             print('Time budget exceeded.')
 
         if len(self._classifiers) == 1:
-            predictions = self._classifiers[0].predict(transformed_test_data))
+            predictions = self._classifiers[0].predict(transformed_test_data)
         else:
             predictions = np.zeros(len(transformed_test_data))
             for i in range(len(self._classifiers)):
