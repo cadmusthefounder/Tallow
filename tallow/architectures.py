@@ -101,7 +101,7 @@ class OriginalEnsemble:
         print('transformed_test_data.shape: {}'.format(transformed_test_data.shape))
         print('train_data.shape: {}'.format(train_data.shape))
 
-        size = len(train_data) * self._small_fraction if len(transformed_test_data) > (len(train_data) * self._small_fraction) else len(train_data)
+        size = len(train_data) if len(transformed_test_data) > len(train_data) else len(transformed_test_data)
         train_weights = correct_covariate_shift(
             train_data, 
             self._test_sampler.sample(transformed_test_data, size), 
