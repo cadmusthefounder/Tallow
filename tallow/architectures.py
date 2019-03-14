@@ -38,6 +38,8 @@ class OriginalEnsemble:
         self._correction_n_splits = 5
         self._epsilon = 0.001
         self._ensemble_size = 3
+        self._large_fraction = 10
+        self._small_fraction = 5
 
         self._categorical_frequency_map = {}
         self._mvc_frequency_map = {}
@@ -46,7 +48,7 @@ class OriginalEnsemble:
         
         self._best_hyperparameters = None
         self._classifiers = np.array([])
-        self._imbalanced_sampler = OldRandomMajorityUnderSampler(self._random_state)
+        self._imbalanced_sampler = OldRandomMajorityUnderSampler(self._random_state, self._small_fraction)
         self._too_much_data_sampler = StratifiedRandomSampler(self._max_data, self._random_state)
         self._profile = Profile.LGBM_ORIGINAL_NAME
 
@@ -65,6 +67,9 @@ class OriginalEnsemble:
         bincount = np.bincount(y.astype(int))
         print('Number of 0 label: {}'.format(bincount[0]))
         print('Number of 1 label: {}'.format(bincount[1]))
+
+        if min(bincount) < 10000:
+            self._imbalanced_sampler = OldRandomMajorityUnderSampler(self._random_state, self._large_fraction)
 
         train_data, train_labels = self._imbalanced_sampler.sample(data, y)
         self._train_data = np.concatenate((self._train_data, train_data), axis=0) if len(self._train_data) > 0 else train_data

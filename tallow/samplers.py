@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 
 class OldRandomMajorityUnderSampler:
 
-    def __init__(self, random_state, fraction=3):
+    def __init__(self, random_state, fraction):
         self._random_state = random_state
         self._fraction = fraction
 
