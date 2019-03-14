@@ -32,13 +32,13 @@ class OriginalEnsemble:
 
         self._iteration = 0
         self._random_state = 13
-        self._max_evaluations = 5
+        self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
         self._should_correct = True
         self._correction_threshold = 0.75
         self._correction_n_splits = 20
         self._epsilon = 0.001
-        self._ensemble_size = 2
+        self._ensemble_size = 3
 
         self._categorical_frequency_map = {}
         self._mvc_frequency_map = {}

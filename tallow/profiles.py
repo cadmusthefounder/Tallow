@@ -18,6 +18,7 @@ class Profile:
             'early_stopping_round': 75,
             'boosting_type': 'gbdt', 
             'objective': 'binary', 
+            'boost_from_average': False,
             'metric': 'auc'
         },
         'search_space': {
@@ -31,6 +32,7 @@ class Profile:
             'early_stopping_round': 75,
             'boosting_type': 'gbdt', 
             'objective': 'binary',
+            'boost_from_average': False,
             'metric': 'auc'
         }
     }
