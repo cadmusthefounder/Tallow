@@ -160,11 +160,11 @@ class OriginalEnsemble:
             print('Time budget exceeded.')
 
         if len(self._classifiers) == 1:
-            predictions = self._classifiers[0].predict_proba(validation_data)[:,1]
+            predictions = self._classifiers[0].predict_proba(transformed_test_data)[:,1]
         else:
             predictions = np.zeros(len(transformed_test_data))
             for i in range(len(self._classifiers)):
-                predictions = np.add(predictions, self._ensemble_weights[i] * self._classifiers[i].predict_proba(validation_data)[:,1])
+                predictions = np.add(predictions, self._ensemble_weights[i] * self._classifiers[i].predict_proba(transformed_test_data)[:,1])
             predictions = np.divide(predictions, np.sum(self._ensemble_weights))        
         print('predictions.shape: {}'.format(predictions.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'OriginalEnsemble', 'predict', 'End'))
