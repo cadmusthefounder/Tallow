@@ -12,7 +12,7 @@ import lightgbm as lgbm
 from sklearn.model_selection import train_test_split
 from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
-from samplers import StratifiedRandomSampler, SMOTESampler
+from samplers import StratifiedRandomSampler, SMOTESampler, RandomUnderSampler
 
 class DataType:
     TRAIN = 'TRAIN'
@@ -41,7 +41,8 @@ class OriginalEnsemble:
         
         self._best_hyperparameters = None
         self._classifiers = []
-        self._imbalanced_sampler = SMOTESampler()
+        # self._imbalanced_sampler = SMOTESampler()
+        self._imbalanced_sampler = RandomUnderSampler(self._random_state)
         self._too_much_data_sampler = StratifiedRandomSampler(self._max_data, self._random_state)
         self._profile = Profile.LGBM_ORIGINAL_NAME
 
