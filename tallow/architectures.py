@@ -124,7 +124,6 @@ class OriginalEnsemble:
             new_weight =  compute_weight(
                 new_predictions, 
                 validation_labels,
-                validation_weights,
                 self._epsilon
             )
 
@@ -135,7 +134,6 @@ class OriginalEnsemble:
                 currrent_classifier_weight =  compute_weight(
                     currrent_classifier_predictions, 
                     validation_labels,
-                    validation_weights,
                     self._epsilon
                 )
                 self._ensemble_weights = np.append(self._ensemble_weights, currrent_classifier_weight)
