@@ -126,7 +126,7 @@ class OriginalEnsemble:
                     else:
                         predictions = np.vstack((predictions, self._classifiers[i].predict(validation_data)))
                 predictions = np.transpose(predictions)
-                self._lr = LogisticRegression(solver='lbfgs')
+                self._lr = LogisticRegression(solver='liblinear')
                 self._lr.fit(predictions, validation_labels)
         else:
             print('Time budget exceeded.')
