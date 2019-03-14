@@ -175,7 +175,7 @@ def count_frequency(frequency_map, categorical_or_mvc_data):
         count = Counter(categorical_or_mvc_data[:,i])
         frequency_map[i] = count if not i in frequency_map else frequency_map[i] + count
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'count_frequency', 'End'))
-    return map
+    return frequency_map
 
 def encode_frequency(frequency_map, categorical_or_mvc_data):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'encode_frequency', 'Start'))
