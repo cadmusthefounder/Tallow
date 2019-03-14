@@ -72,8 +72,8 @@ class OriginalEnsemble:
         if min(bincount) < self._minority_threshold:
             self._imbalanced_sampler = OldRandomMajorityUnderSampler(self._random_state, self._large_fraction)
 
-        self._train_data = np.concatenate((self._train_data, train_data), axis=0) if len(self._train_data) > 0 else train_data
-        self._train_labels = np.concatenate((self._train_labels, train_labels), axis=0) if len(self._train_labels) > 0 else train_labels
+        self._train_data = np.concatenate((self._train_data, data), axis=0) if len(self._train_data) > 0 else data
+        self._train_labels = np.concatenate((self._train_labels, y), axis=0) if len(self._train_labels) > 0 else y
         self._train_data, self._train_labels = self._too_much_data_sampler.sample(self._train_data, self._train_labels)
         print('self._train_data.shape: {}'.format(self._train_data.shape))
         print('self._train_labels.shape: {}'.format(self._train_labels.shape))
