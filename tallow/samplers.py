@@ -12,7 +12,10 @@ class SMOTESampler:
         self._sampler = SMOTE()
 
     def sample(self, X, y):
-        return self._sampler.fit_resample(X, y)
+        print('\nFile: {} Class: {} Function: {} State: {}'.format('samplers.py', 'SMOTESampler', 'sample', 'Start'))
+        sampled_X, sampled_y = self._sampler.fit_resample(X, y)
+        print('File: {} Class: {} Function: {} State: {} \n'.format('samplers.py', 'SMOTESampler', 'sample', 'End'))
+        return sampled_X, sampled_y 
 
 class RandomOverSampler:
     

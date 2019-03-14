@@ -34,6 +34,7 @@ class OriginalEnsemble:
         self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
         self._correction_threshold = 0.75
+        self._correction_n_splits = 5
 
         self._categorical_frequency_map = {}
         self._mvc_frequency_map = {}
@@ -97,8 +98,8 @@ class OriginalEnsemble:
         print('train_data.shape: {}'.format(train_data.shape))
         print('train_labels.shape: {}'.format(train_labels.shape))
 
-        train_weights = correct_covariate_shift(train_data, transformed_test_data, self._random_state, self._correction_threshold)  
-        validation_weights =  correct_covariate_shift(validation_data, transformed_test_data, self._random_state, self._correction_threshold)  
+        train_weights = correct_covariate_shift(train_data, transformed_test_data, self._random_state, self._correction_threshold, self._correction_n_splits)  
+        validation_weights =  correct_covariate_shift(validation_data, transformed_test_data, self._random_state, self._correction_threshold, self._correction_n_splits)  
         train_dataset = lgbm.Dataset(train_data, train_labels, weight=train_weights)
         validation_dataset = train_dataset.create_valid(validation_data, validation_labels, weight=validation_weights)
 

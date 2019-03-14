@@ -21,6 +21,7 @@ class HyperparametersTuner:
             train_dataset, 
             valid_sets=[validation_dataset]
         )
+        print(self._validation_dataset.get_data())
         predictions = classifier.predict(self._validation_dataset.get_data())
         labels = np.array(self._validation_dataset.get_label())
         fixed_hyperparameters_score = roc_auc_score(labels, predictions)

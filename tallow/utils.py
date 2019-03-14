@@ -186,7 +186,7 @@ def encode_frequency(frequency_map, categorical_or_mvc_data):
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'encode_frequency', 'End'))
     return result
 
-def correct_covariate_shift(train_data, test_data, random_state, threshold):
+def correct_covariate_shift(train_data, test_data, random_state, threshold, n_splits):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'correct_covariate_shift', 'Start'))
     X = pd.DataFrame(test_data)
     Z = pd.DataFrame(train_data)
@@ -200,7 +200,7 @@ def correct_covariate_shift(train_data, test_data, random_state, threshold):
 
     clf = LogisticRegression(solver='lbfgs')
     predictions = np.zeros(labels.shape)
-    skf = StratifiedKFold(n_splits=20, shuffle=True, random_state=random_state)
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
     for fold, (train_idx, test_idx) in enumerate(skf.split(XZ, labels)):
         X_train, X_test = XZ[train_idx], XZ[test_idx]
         y_train, y_test = labels[train_idx], labels[test_idx]
