@@ -101,7 +101,7 @@ class OriginalEnsemble:
         train_weights = correct_covariate_shift(train_data, transformed_test_data, self._random_state, self._correction_threshold, self._correction_n_splits)  
         validation_weights =  correct_covariate_shift(validation_data, transformed_test_data, self._random_state, self._correction_threshold, self._correction_n_splits)  
         train_dataset = lgbm.Dataset(train_data, train_labels, weight=train_weights)
-        validation_dataset = train_dataset.create_valid(validation_data, validation_labels, weight=validation_weights)
+        validation_dataset = train_dataset.create_valid(validation_data, validation_labels, weight=validation_weights, free_raw_data=False)
 
         fixed_hyperparameters, search_space = Profile.parse_profile(self._profile)
         if self._best_hyperparameters is None:
@@ -125,7 +125,7 @@ class OriginalEnsemble:
                     else:
                         predictions = np.vstack((predictions, self._classifiers[i].predict(validation_data)))
                 predictions = np.transpose(predictions)
-                self._lr = LogisticRegression(solver='lbfgs', max_iter=1000)
+                self._lr = LogisticRegression(solver='lbfgs')
                 self._lr.fit(predictions, self._validation_labels)
         else:
             print('Time budget exceeded.')
