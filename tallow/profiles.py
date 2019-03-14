@@ -15,7 +15,7 @@ class Profile:
             'bagging_freq': 2, 
             'min_data_in_leaf': 20,
             'num_iterations': 600, 
-            'early_stopping_round': 30,
+            'early_stopping_round': 50,
             'boosting_type': 'gbdt', 
             'objective': 'binary', 
             'metric': 'auc'
