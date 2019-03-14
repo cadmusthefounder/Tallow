@@ -196,8 +196,8 @@ def correct_covariate_shift(train_data, test_data, random_state, threshold, n_sp
     # transformed_data = scaler.fit_transform(concat_data)
     # train_data, test_data = transformed_data[:split,:], transformed_data[split:,:]
 
-    X = pd.DataFrame(test_data).fillna(0)
-    Z = pd.DataFrame(train_data).fillna(0)
+    X = pd.DataFrame(test_data)
+    Z = pd.DataFrame(train_data)
     X['is_z'] = 0 # 0 means test set
     Z['is_z'] = 1 # 1 means training set
     XZ = pd.concat( [X, Z], ignore_index=True, axis=0 )
