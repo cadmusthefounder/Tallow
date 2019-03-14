@@ -33,8 +33,8 @@ class OriginalEnsemble:
         self._random_state = 13
         self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
-        self._should_correct = False
-        self._correction_threshold = 0.75
+        self._should_correct = True
+        self._correction_threshold = 0.8
         self._correction_n_splits = 5
         self._epsilon = 0.001
         self._ensemble_size = 3
@@ -101,9 +101,10 @@ class OriginalEnsemble:
         print('transformed_test_data.shape: {}'.format(transformed_test_data.shape))
         print('train_data.shape: {}'.format(train_data.shape))
 
+        size = len(train_data) * self._small_fraction if len(transformed_test_data) > (len(train_data) * self._small_fraction) else len(train_data)
         train_weights = correct_covariate_shift(
             train_data, 
-            self._test_sampler.sample(transformed_test_data, len(train_data)), 
+            self._test_sampler.sample(transformed_test_data, size), 
             self._random_state, 
             self._correction_threshold, 
             self._correction_n_splits
@@ -128,7 +129,7 @@ class OriginalEnsemble:
             new_classifier.set_params(**self._best_hyperparameters)
             new_classifier.fit(train_data, train_labels, sample_weight=train_weights)
 
-            new_predictions = new_classifier.predict(validation_data)
+            new_predictions = new_classifier.predict_proba(validation_data)[:,1]
             new_weight =  compute_weight(
                 new_predictions, 
                 validation_labels,
@@ -138,7 +139,7 @@ class OriginalEnsemble:
             self._ensemble_weights = np.array([])
             for i in range(len(self._classifiers)):
                 currrent_classifier = self._classifiers[i]
-                currrent_classifier_predictions = currrent_classifier.predict(validation_data)
+                currrent_classifier_predictions = currrent_classifier.predict_proba(validation_data)[:,1]
                 currrent_classifier_weight =  compute_weight(
                     currrent_classifier_predictions, 
                     validation_labels,
@@ -159,11 +160,11 @@ class OriginalEnsemble:
             print('Time budget exceeded.')
 
         if len(self._classifiers) == 1:
-            predictions = self._classifiers[0].predict(transformed_test_data)
+            predictions = self._classifiers[0].predict_proba(validation_data)[:,1]
         else:
             predictions = np.zeros(len(transformed_test_data))
             for i in range(len(self._classifiers)):
-                predictions = np.add(predictions, self._ensemble_weights[i] * self._classifiers[i].predict(transformed_test_data))
+                predictions = np.add(predictions, self._ensemble_weights[i] * self._classifiers[i].predict_proba(validation_data)[:,1]
             predictions = np.divide(predictions, np.sum(self._ensemble_weights))        
         print('predictions.shape: {}'.format(predictions.shape))
         print('File: {} Class: {} Function: {} State: {} \n'.format('architectures.py', 'OriginalEnsemble', 'predict', 'End'))
