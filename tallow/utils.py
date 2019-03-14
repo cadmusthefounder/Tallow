@@ -234,6 +234,7 @@ def compute_weight(predictions, labels, weights, epsilon):
     return 1 / (mean_squared_error(predictions, labels, weights) + epsilon)
 
 def compute_q_statistic(classifiers, data, labels):
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'compute_q_statistic', 'Start'))
     normalise, q = 0
     for i in range(len(classifiers)):
         for j in range(i, len(classifiers)):
@@ -243,9 +244,13 @@ def compute_q_statistic(classifiers, data, labels):
             q += float((n11 * n00) -  (n01 * n10)) / float((n11 * n00) + (n01 * n10))
             normalise += 1
 
-    return 1 - (q / float(normalise))
+    div = 1 - (q / float(normalise))
+    print('div: {}'.format(div))
+    print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'compute_q_statistic', 'End'))
+    return div
 
 def remove_worst_classifier(classifiers, data, labels):
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'remove_worst_classifier', 'Start'))
     index = 0
     max_q = 0
     for i in range(len(classifiers)):
@@ -253,6 +258,7 @@ def remove_worst_classifier(classifiers, data, labels):
         q = compute_q_statistic(new_classifiers, data, labels)
         if q > max_q:
             index = i
+    print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'remove_worst_classifier', 'End'))
     return index
 
 def compute_confusion_matrix(predictions_1, predictions_2, labels):
