@@ -73,3 +73,12 @@ class StratifiedRandomSampler:
         )
         print('File: {} Class: {} Function: {} State: {} \n'.format('samplers.py', 'StratifiedRandomSampler', 'sample', 'End'))
         return train_data, train_labels
+
+class RandomSampler:
+
+    def __init__(self, random_state):
+        self._random_state = random_state
+
+    def sample(self, X, length):
+        indices = list(sorted(np.random.choice(len(X), length)))
+        return X[indices,:]

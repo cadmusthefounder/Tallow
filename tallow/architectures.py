@@ -12,7 +12,7 @@ import lightgbm as lgbm
 from sklearn.model_selection import train_test_split
 from hyperparameters_tuner import HyperparametersTuner
 from profiles import Profile
-from samplers import StratifiedRandomSampler, OldRandomMajorityUnderSampler
+from samplers import StratifiedRandomSampler, OldRandomMajorityUnderSampler, RandomSampler
 
 class DataType:
     TRAIN = 'TRAIN'
@@ -33,11 +33,11 @@ class OriginalEnsemble:
         self._random_state = 13
         self._max_evaluations = 25
         self._dataset_budget_threshold = 0.8
-        self._should_correct = False
+        self._should_correct = True
         self._correction_threshold = 0.75
         self._correction_n_splits = 5
         self._epsilon = 0.001
-        self._ensemble_size = 4
+        self._ensemble_size = 3
         self._minority_threshold = 10000
         self._large_fraction = 7
         self._small_fraction = 4
@@ -51,6 +51,7 @@ class OriginalEnsemble:
         self._classifiers = np.array([])
         self._imbalanced_sampler = OldRandomMajorityUnderSampler(self._random_state, self._small_fraction)
         self._too_much_data_sampler = StratifiedRandomSampler(self._max_data, self._random_state)
+        self._test_sampler = RandomSampler(self._random_state)
         self._profile = Profile.LGBM_ORIGINAL_NAME
 
     def fit(self, F, y, datainfo, timeinfo):
@@ -102,7 +103,7 @@ class OriginalEnsemble:
 
         train_weights = correct_covariate_shift(
             train_data, 
-            transformed_test_data, 
+            self._test_sampler.sample(transformed_test_data, len(train_data)), 
             self._random_state, 
             self._correction_threshold, 
             self._correction_n_splits
