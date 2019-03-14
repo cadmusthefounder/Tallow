@@ -7,7 +7,7 @@ from collections import Counter
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, mean_squared_error
 
 def pip_install(package):
     pip.main(['install', '-U', package])
@@ -229,6 +229,47 @@ def correct_covariate_shift(train_data, test_data, random_state, threshold, n_sp
     print('weights.shape: {}'.format(weights.shape))
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'correct_covariate_shift', 'End'))
     return weights
+
+def compute_weight(predictions, labels, weights, epsilon):
+    return 1 / (mean_squared_error(predictions, labels, weights) + epsilon)
+
+def compute_q_statistic(classifiers, data, labels):
+    normalise, q = 0
+    for i in range(len(classifiers)):
+        for j in range(i, len(classifiers)):
+            predictions_1 = classifiers[i].predict(data)
+            predictions_2 = classifiers[j].predict(data)
+            n00, n01, n10, n11 = compute_confusion_matrix(predictions_1, predictions_2, labels)
+            q += float((n11 * n00) -  (n01 * n10)) / float((n11 * n00) + (n01 * n10))
+            normalise += 1
+
+    return 1 - (q / float(normalise))
+
+def remove_worst_classifier(classifiers, data, labels):
+    index = 0
+    max_q = 0
+    for i in range(len(classifiers)):
+        new_classifiers = np.delete(classifiers, i)
+        q = compute_q_statistic(new_classifiers, data, labels)
+        if q > max_q:
+            index = i
+    return index
+
+def compute_confusion_matrix(predictions_1, predictions_2, labels):
+    print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'compute_confusion_matrix', 'Start'))
+    n00 = n01 = n10 = n11 = 0
+    for i in range(len(labels)):
+        if predictions_1[i] == predictions_2[i] and predictions_1[i] == labels[i]:
+            n11 += 1
+        elif predictions_1[i] == predictions_2[i] and predictions_1[i] != labels[i]:
+            n00 += 1
+        elif predictions_1[i] != predictions_2[i] and predictions_1[i] == labels[i]:
+            n10 += 1
+        else:
+            n01 += 1
+    print('n00: {} n01: {} n10: {} n10: {}'.format(n00, n01, n10, n11))
+    print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'compute_confusion_matrix', 'End'))
+    return n00, n01, n10, n11
 
 def is_large_dataset(data_size, dataset_size_threshold):
     return data_size > dataset_size_threshold
