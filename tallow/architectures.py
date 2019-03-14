@@ -44,7 +44,7 @@ class OriginalEnsemble:
         self._mvc_frequency_map = {}
         
         self._best_hyperparameters = None
-        self._classifiers = []
+        self._classifiers = np.array([])
         # self._imbalanced_sampler = RandomMajorityUnderSampler(self._random_state)
         self._imbalanced_sampler = OldRandomMajorityUnderSampler(self._random_state)
         self._too_much_data_sampler = StratifiedRandomSampler(self._max_data, self._random_state)
@@ -152,7 +152,7 @@ class OriginalEnsemble:
                 self._epsilon
             )
 
-            self._ensemble_weights = []
+            self._ensemble_weights = np.array([])
             for i in range(len(self._classifiers)):
                 currrent_classifier = self._classifiers[i]
                 currrent_classifier_predictions = currrent_classifier.predict(validation_data)
@@ -162,7 +162,7 @@ class OriginalEnsemble:
                     validation_weights,
                     self._epsilon
                 )
-                self._ensemble_weights.append(currrent_classifier_weight)
+                self._ensemble_weights = np.append(self._ensemble_weights, currrent_classifier_weight)
 
                 if currrent_classifier_weight > dummy_weight:
                     currrent_classifier = lgbm.train(
@@ -172,11 +172,13 @@ class OriginalEnsemble:
                         keep_training_booster=True,
                         init_model=currrent_classifier
                     )
-            self._classifiers.append(new_classifier)
-            self._ensemble_weights.append(new_weight)
+            self._classifiers = np.append(self._classifiers, new_classifier)
+            self._ensemble_weights = np.append(self._ensemble_weights, new_weight)
+            print('self._ensemble_weights: {}'.format(self._ensemble_weights))
 
             if len(self._classifiers) > self._ensemble_size:
                 i = remove_worst_classifier(self._classifiers, validation_data, validation_labels)
+                print('Removed classifier: {}'.format(i))
                 self._classifiers = np.delete(self._classifiers, i)
                 self._ensemble_weights = np.delete(self._ensemble_weights, i)
         else:
