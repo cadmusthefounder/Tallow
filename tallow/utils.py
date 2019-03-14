@@ -4,6 +4,7 @@ import random
 import numpy as np
 import pandas as pd
 from collections import Counter
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
@@ -188,6 +189,14 @@ def encode_frequency(frequency_map, categorical_or_mvc_data):
 
 def correct_covariate_shift(train_data, test_data, random_state, threshold, n_splits):
     print('\nFile: {} Class: {} Function: {} State: {}'.format('utils.py', 'None', 'correct_covariate_shift', 'Start'))
+
+    split = len(train_data)
+    scaler = StandardScaler()
+    concat_data = np.concatenate((train_data, test_data), axis=0)
+    transformed_data = scaler.fit_transform(concat_data)
+    train_data, test_data = transformed_data[:split,:], transformed_data[split:,:]
+
+
     X = pd.DataFrame(test_data)
     Z = pd.DataFrame(train_data)
     X['is_z'] = 0 # 0 means test set
