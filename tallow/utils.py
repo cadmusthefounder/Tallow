@@ -10,7 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, mean_squared_error
 
 def pip_install(package):
-    pip.main(['install', '-U', package])
+    pip.main(['install', package])
 
 def pip_uninstall(package):
     pip.main(['uninstall', '-y', package])
@@ -273,7 +273,7 @@ def compute_confusion_matrix(predictions_1, predictions_2, labels):
             n10 += 1
         else:
             n01 += 1
-    print('n00: {} n01: {} n10: {} n10: {}'.format(n00, n01, n10, n11))
+    print('n00: {} n01: {} n10: {} n11: {}'.format(n00, n01, n10, n11))
     print('File: {} Class: {} Function: {} State: {} \n'.format('utils.py', 'None', 'compute_confusion_matrix', 'End'))
     return n00, n01, n10, n11
 
