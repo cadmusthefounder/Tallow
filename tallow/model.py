@@ -5,13 +5,14 @@ from architectures import *
 
 ARCHITECTURE_MAPPING = {
     OriginalEnsemble.NAME: OriginalEnsemble,
-    OneTime.NAME: OneTime
+    OneTime.NAME: OneTime,
+    EveryTime.NAME: EveryTime
 }
 
 class Model:
 
     def __init__(self, datainfo, timeinfo):
-        architecture = OneTime.NAME
+        architecture = EveryTime.NAME
         self._architecture = ARCHITECTURE_MAPPING[architecture](datainfo, timeinfo)
         
     def fit(self, F, y, datainfo, timeinfo):
