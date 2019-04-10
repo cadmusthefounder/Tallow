@@ -33,5 +33,9 @@ python3 AutoML3_scoring_program/score.py 'AutoML3_D/*/' AutoML3_D_predictions Au
 python3 AutoML3_ingestion_program/ingestion.py AutoML3_E AutoML3_E_predictions AutoML3_E AutoML3_ingestion_program tallow
 python3 AutoML3_scoring_program/score.py 'AutoML3_E/*/' AutoML3_E_predictions AutoML3_scoring_output
 
+# sea
+python3 AutoML3_ingestion_program/ingestion.py AutoML3_sea AutoML3_sea_predictions AutoML3_sea AutoML3_ingestion_program tallow
+python3 AutoML3_scoring_program/score.py 'AutoML3_sea/*/' AutoML3_sea_predictions AutoML3_scoring_output
+
 ps ax | grep AutoML3
 ```

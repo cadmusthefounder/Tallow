@@ -4,13 +4,14 @@ from os.path import isfile
 from architectures import *
 
 ARCHITECTURE_MAPPING = {
-    OriginalEnsemble.NAME: OriginalEnsemble
+    OriginalEnsemble.NAME: OriginalEnsemble,
+    OneTime.NAME: OneTime
 }
 
 class Model:
 
     def __init__(self, datainfo, timeinfo):
-        architecture = OriginalEnsemble.NAME
+        architecture = OneTime.NAME
         self._architecture = ARCHITECTURE_MAPPING[architecture](datainfo, timeinfo)
         
     def fit(self, F, y, datainfo, timeinfo):
